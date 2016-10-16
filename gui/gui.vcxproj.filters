@@ -1,0 +1,256 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\app">
+      <UniqueIdentifier>{afe938bf-dd97-47e7-9927-42fb37cf81b0}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\view">
+      <UniqueIdentifier>{9b854d3a-3d73-4fb5-b471-6348e8c41afb}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\doc">
+      <UniqueIdentifier>{dbefc0fa-a8b9-4aca-9242-1fe3e3b07bdf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\misc">
+      <UniqueIdentifier>{bf66d1f5-76a2-419b-8a9a-a4b095762073}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="ReadMe.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="gui.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MainFrm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="guiDoc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="guiView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewTree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputWnd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PropertiesWnd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneView.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphic.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicPolygon.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicCircle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicBezier.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicStyle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="gui.cpp">
+      <Filter>Source Files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="ViewTree.cpp">
+      <Filter>Source Files\view</Filter>
+    </ClCompile>
+    <ClCompile Include="FileView.cpp">
+      <Filter>Source Files\view</Filter>
+    </ClCompile>
+    <ClCompile Include="guiView.cpp">
+      <Filter>Source Files\view</Filter>
+    </ClCompile>
+    <ClCompile Include="MainFrm.cpp">
+      <Filter>Source Files\view</Filter>
+    </ClCompile>
+    <ClCompile Include="OutputWnd.cpp">
+      <Filter>Source Files\view</Filter>
+    </ClCompile>
+    <ClCompile Include="PropertiesWnd.cpp">
+      <Filter>Source Files\view</Filter>
+    </ClCompile>
+    <ClCompile Include="guiDoc.cpp">
+      <Filter>Source Files\doc</Filter>
+    </ClCompile>
+    <ClCompile Include="stdafx.cpp">
+      <Filter>Source Files\app</Filter>
+    </ClCompile>
+    <ClCompile Include="SceneView.cpp">
+      <Filter>Source Files\view</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphic.cpp">
+      <Filter>Source Files\doc</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicPolygon.cpp">
+      <Filter>Source Files\doc</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicCircle.cpp">
+      <Filter>Source Files\doc</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicBezier.cpp">
+      <Filter>Source Files\doc</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicStyle.cpp">
+      <Filter>Source Files\doc</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="gui.reg" />
+    <None Include="res\ribbon.mfcribbon-ms">
+      <Filter>Resource Files</Filter>
+    </None>
+    <None Include="res\gui.rc2">
+      <Filter>Resource Files</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="gui.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="res\file_view.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\file_view_hc.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\class_view.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\class_view_hc.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\fileview.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\fileview_hc.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\classview.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\classview_hc.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\explorer.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\explorer_hc.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\sort.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\sort_hc.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\menuimages.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\menuimages_hc.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\output_wnd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\output_wnd_hc.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\properties_wnd.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\properties_wnd_hc.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\properties.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\properties_hc.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\buttons.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\filelarge.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\filesmall.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\main.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\writelarge.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\writesmall.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\guiDoc.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\gui.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\Toolbar.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\Toolbar256.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bitmap1.bmp">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\bitmap1.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\png.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\edit.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\view.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+    <Image Include="res\render.png">
+      <Filter>Resource Files</Filter>
+    </Image>
+  </ItemGroup>
+</Project>
