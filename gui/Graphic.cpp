@@ -13,7 +13,6 @@ Graphic::~Graphic()
 {
 }
 
-IMPLEMENT_SERIAL(Graphic, CObject, 1)
 
 void Graphic::Serialize(CArchive & ar)
 {
@@ -74,7 +73,6 @@ void Graphic::Serialize(CArchive & ar)
 	}
 }
 
-IMPLEMENT_SERIAL(GUID_, CObject, 1)
 void GUID_::Serialize(CArchive & ar)
 {
 	if (ar.IsLoading())

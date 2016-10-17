@@ -16,14 +16,17 @@ public:
 } GraphicBasicPoint;
 
 template<typename T>
-class GraphicAttrTimeline : public CObject
+class GraphicAttrTimeline 
 {
-public:
+	
+public://attr
 	std::vector<std::pair<int, T>> attr;
+public://method
 	T atFrame(int frame);
 	void setAttrAtFrame(T val, int frame);
 	void Serialize(CArchive& ar);
 };
+
 
 template<typename T>
 inline T GraphicAttrTimeline<T>::atFrame(int frame)
@@ -38,18 +41,18 @@ inline T GraphicAttrTimeline<T>::atFrame(int frame)
 
 	for (auto it = attr.begin(); it != attr.end(); ++it)
 	{
-		if (frame < it.first)
+		if (frame < (*it).first)
 		{
-			frame2 = it.first;
-			attr2 = it.second;
+			frame2 = (*it).first;
+			attr2 = (*it).second;
 		}
 	}
-	for (auto it = attr.end(); it != attr.begin; --it)
+	for (auto it = attr.end(); it != attr.begin(); --it)
 	{
-		if (frame > it.first)
+		if (frame >(*it).first)
 		{
-			frame1 = it.first;
-			attr1 = it.second;
+			frame1 = (*it).first;
+			attr1 = (*it).second;
 		}
 	}
 
@@ -89,7 +92,6 @@ inline void GraphicAttrTimeline<T>::setAttrAtFrame(T val, int frame)
 template<typename T>
 inline void GraphicAttrTimeline<T>::Serialize(CArchive & ar)
 {
-	CObject::Serialize(ar);
 	if (ar.IsLoading())
 	{
 		int len;
@@ -131,7 +133,10 @@ public :
 
 	GraphicBasicPoint atFrame(int frame);
 
+	GraphicPoint();
+	GraphicPoint(const GraphicPoint & o);
+
 	DECLARE_SERIAL(GraphicPoint)
-	virtual void Serialize(CArchive& ar);
+	void Serialize(CArchive& ar);
 };
 

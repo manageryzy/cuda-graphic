@@ -12,7 +12,6 @@ GraphicBezier::~GraphicBezier()
 {
 }
 
-IMPLEMENT_SERIAL(GraphicBezier, CObject, 1)
 
 void GraphicBezier::Serialize(CArchive & ar)
 {

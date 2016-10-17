@@ -13,12 +13,28 @@ GraphicBasicPoint GraphicPoint::atFrame(int frame)
 	pt.glowWidth = glowWidth.atFrame(frame);
 	pt.shadowColor = shadowColor.atFrame(frame);
 	pt.shadowWidth = shadowWidth.atFrame(frame);
+	return pt;
+}
+
+GraphicPoint::GraphicPoint()
+{
+}
+
+GraphicPoint::GraphicPoint(const GraphicPoint & o)
+{
+	this->x = o.x;
+	this->y = o.x;
+	this->color = o.color;
+	this->width = o.width;
+	this->glowColor = o.glowColor;
+	this->glowWidth = o.glowWidth;
+	this->shadowColor = o.shadowColor;
+	this->shadowWidth = o.shadowWidth;
 }
 
 IMPLEMENT_SERIAL(GraphicPoint, CObject, 1)
 void GraphicPoint::Serialize(CArchive & ar)
 {
-	int len;
 	if (ar.IsLoading())
 	{
 		x.Serialize(ar);

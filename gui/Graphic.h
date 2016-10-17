@@ -12,13 +12,11 @@ enum GraphicType
 	GRA_BEZIER
 };
 
-class GUID_:
-	public CObject 
+class GUID_
 {
 	long long unsigned int a, b;
 
-	DECLARE_SERIAL(GUID_)
-
+public:
 	GUID_()	{	}
 
 	GUID_(const GUID_ &o)
@@ -46,14 +44,13 @@ class GUID_:
 		b = *((long long unsigned int *) (&o)+8);
 	}
 
-	virtual void Serialize(CArchive& ar);
+	void Serialize(CArchive& ar);
 };
 
 
 class Graphic :
 	public CObject
 {
-	DECLARE_SERIAL(Graphic)
 public:
 	GUID_ guid;
 	CString label;

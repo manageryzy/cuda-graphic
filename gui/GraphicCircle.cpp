@@ -12,7 +12,6 @@ GraphicCircle::~GraphicCircle()
 {
 }
 
-IMPLEMENT_SERIAL(GraphicCircle, CObject, 1)
 
 void GraphicCircle::Serialize(CArchive & ar)
 {

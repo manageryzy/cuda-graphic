@@ -1,13 +1,11 @@
 #pragma once
 
 
-class GraphicBezier :
-	public CObject
+class GraphicBezier 
 {
-	DECLARE_SERIAL(GraphicBezier)
 public:
 
-	virtual void Serialize(CArchive& ar);
+	void Serialize(CArchive& ar);
 	GraphicBezier();
 	~GraphicBezier();
 };

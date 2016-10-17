@@ -12,15 +12,26 @@ GraphicPolygon::~GraphicPolygon()
 {
 }
 
-IMPLEMENT_SERIAL(GraphicPolygon, CObject, 1)
 
 void GraphicPolygon::Serialize(CArchive & ar)
 {
 	if (ar.IsLoading())
 	{
+		int len;
+		ar >> len;
+		for (auto i = 0; i < len; i++)
+		{
+			GraphicPoint pt;
+			pt.Serialize(ar);
+			points.push_back(pt);
+		}
 	}
 	else if (ar.IsStoring())
 	{
-
+		ar << points.size();
+		for (auto & i : points)
+		{
+			i.Serialize(ar);
+		}
 	}
 }

@@ -1,15 +1,13 @@
 #pragma once
 #include <vector>
 
-class GraphicPolygon :
-	public CObject
+class GraphicPolygon 
 {
-	DECLARE_SERIAL(GraphicPolygon)
 public:
 
 	std::vector<GraphicPoint> points;
 
-	virtual void Serialize(CArchive& ar);
+	void Serialize(CArchive& ar);
 	GraphicPolygon();
 	~GraphicPolygon();
 };

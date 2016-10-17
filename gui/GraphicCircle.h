@@ -1,12 +1,10 @@
 #pragma once
 
-class GraphicCircle :
-	public CObject
+class GraphicCircle 
 {
-	DECLARE_SERIAL(GraphicCircle)
 public:
 
-	virtual void Serialize(CArchive& ar);
+	void Serialize(CArchive& ar);
 	GraphicCircle();
 	~GraphicCircle();
 };
