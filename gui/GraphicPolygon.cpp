@@ -41,3 +41,15 @@ void GraphicPolygon::Serialize(CArchive & ar)
 		fillColor.Serialize(ar);
 	}
 }
+
+std::vector<GraphicBasicPoint> GraphicPolygon::atFrame(int frame)
+{
+	auto pts = std::vector<GraphicBasicPoint>();
+
+	for (auto & p : points)
+	{
+		pts.push_back(p.atFrame(frame));
+	}
+
+	return pts;
+}

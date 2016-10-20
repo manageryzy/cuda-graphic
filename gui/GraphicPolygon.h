@@ -9,6 +9,7 @@ public:
 	GraphicColorTimeLine fillColor;
 
 	void Serialize(CArchive& ar);
+	std::vector<GraphicBasicPoint> atFrame(int frame);
 	GraphicPolygon();
 	~GraphicPolygon();
 };
