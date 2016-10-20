@@ -71,6 +71,12 @@ public:
 	afx_msg void OnFramePrev();
 	afx_msg void OnBtnRenderImg();
 	afx_msg void OnBtnRenderSequence();
+	afx_msg void OnBtnSelObj();
+	afx_msg void OnBtnSelVertex();
+	afx_msg void OnBtnSelClick();
+	afx_msg void OnBtnSelRect();
+	afx_msg void OnBtnMoveUp();
+	afx_msg void OnBtnMoveDown();
 };
 
 #ifndef _DEBUG  // debug version in guiView.cpp

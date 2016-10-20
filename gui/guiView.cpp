@@ -54,6 +54,12 @@ BEGIN_MESSAGE_MAP(CguiView, CView)
 	ON_COMMAND(ID_FRAME_PREV, &CguiView::OnFramePrev)
 	ON_COMMAND(ID_BTN_RENDER_IMG, &CguiView::OnBtnRenderImg)
 	ON_COMMAND(ID_BTN_RENDER_SEQUENCE, &CguiView::OnBtnRenderSequence)
+	ON_COMMAND(ID_BTN_SEL_OBJ, &CguiView::OnBtnSelObj)
+	ON_COMMAND(ID_BTN_SEL_VERTEX, &CguiView::OnBtnSelVertex)
+	ON_COMMAND(ID_BTN_SEL_CLICK, &CguiView::OnBtnSelClick)
+	ON_COMMAND(ID_BTN_SEL_RECT, &CguiView::OnBtnSelRect)
+	ON_COMMAND(ID_BTN_MOVE_UP, &CguiView::OnBtnMoveUp)
+	ON_COMMAND(ID_BTN_MOVE_DOWN, &CguiView::OnBtnMoveDown)
 END_MESSAGE_MAP()
 
 // CguiView construction/destruction
@@ -241,6 +247,42 @@ void CguiView::OnBtnRenderImg()
 
 
 void CguiView::OnBtnRenderSequence()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CguiView::OnBtnSelObj()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CguiView::OnBtnSelVertex()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CguiView::OnBtnSelClick()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CguiView::OnBtnSelRect()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CguiView::OnBtnMoveUp()
+{
+	// TODO: Add your command handler code here
+}
+
+
+void CguiView::OnBtnMoveDown()
 {
 	// TODO: Add your command handler code here
 }

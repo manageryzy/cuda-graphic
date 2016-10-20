@@ -89,8 +89,10 @@
 #define IDB_RENDER                      315
 #define ID_WRITE_PASTEASHYPERLINK       32770
 #define ID_BUTTON2                      32771
+#define ID_BTN_MOVE_UP                  32771
 #define ID_BUTTON7                      32776
 #define ID_BUTTON8                      32777
+#define ID_BTN_SEL_OBJ                  32777
 #define ID_BTN_UNDO                     32779
 #define ID_BTN_ADD_TRIANGLE             32780
 #define ID_BTN_ADD_LINE                 32781
@@ -108,8 +110,11 @@
 #define ID_BUTTON6                      32792
 #define ID_BTN_ZOOM_OUT                 32792
 #define ID_BUTTON9                      32793
+#define ID_BTN_SEL_VERTEX               32793
 #define ID_BUTTON10                     32794
+#define ID_BTN_SEL_CLICK                32794
 #define ID_BUTTON11                     32795
+#define ID_BTN_SEL_RECT                 32795
 #define ID_BTN_RENDER_IMG               32796
 #define ID_BTN_RENDER_SEQUENCE          32797
 #define ID_PAN                          32798
@@ -119,13 +124,14 @@
 #define ID_BTN_SCALE                    32802
 #define ID_BTN_ROTATE                   32803
 #define ID_BTN_TO_POLYGON               32804
+#define ID_BTN_MOVE_DOWN                32805
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        316
-#define _APS_NEXT_COMMAND_VALUE         32805
+#define _APS_NEXT_COMMAND_VALUE         32806
 #define _APS_NEXT_CONTROL_VALUE         1000
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
