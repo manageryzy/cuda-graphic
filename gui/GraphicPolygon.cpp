@@ -3,6 +3,8 @@
 #include "Graphic.h"
 
 
+
+
 GraphicPolygon::GraphicPolygon()
 {
 }
@@ -25,6 +27,8 @@ void GraphicPolygon::Serialize(CArchive & ar)
 			pt.Serialize(ar);
 			points.push_back(pt);
 		}
+
+		fillColor.Serialize(ar);
 	}
 	else if (ar.IsStoring())
 	{
@@ -33,5 +37,7 @@ void GraphicPolygon::Serialize(CArchive & ar)
 		{
 			i.Serialize(ar);
 		}
+
+		fillColor.Serialize(ar);
 	}
 }

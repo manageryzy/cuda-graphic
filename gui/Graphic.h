@@ -1,9 +1,13 @@
 #pragma once
 
 #include "GraphicStyle.h"
+#include "GraphicPolygon.h"
 #include "GraphicBezier.h"
 #include "GraphicCircle.h"
-#include "GraphicPolygon.h"
+
+
+#define GRAPHIC_SETTING_CIRCLE_EDGES 128
+#define GRAPHIC_SETTING_BEZIER_EDGES 1024
 
 enum GraphicType 
 {
@@ -48,8 +52,7 @@ public:
 };
 
 
-class Graphic :
-	public CObject
+class Graphic 
 {
 public:
 	GUID_ guid;
@@ -62,7 +65,8 @@ public:
 	std::auto_ptr<GraphicCircle> graphicCircle;
 	std::auto_ptr<GraphicPolygon> graphicPolygon;
 
-	virtual void Serialize(CArchive& ar);
+	void Serialize(CArchive& ar);
+	void toPolygon();
 	Graphic();
 	~Graphic();
 };

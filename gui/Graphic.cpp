@@ -73,6 +73,22 @@ void Graphic::Serialize(CArchive & ar)
 	}
 }
 
+void Graphic::toPolygon()
+{
+	switch (this->type)
+	{
+	case GRA_POLYGON:
+		break;
+	case GRA_CIRCLE:
+		this->graphicPolygon.reset(this->graphicCircle->toPolygon());
+		this->graphicCircle.reset(nullptr);
+		break;
+	case GRA_BEZIER:
+		this->graphicPolygon.reset(this->graphicBezier->toPolygon());
+
+	}
+}
+
 void GUID_::Serialize(CArchive & ar)
 {
 	if (ar.IsLoading())

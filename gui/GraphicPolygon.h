@@ -6,6 +6,7 @@ class GraphicPolygon
 public:
 
 	std::vector<GraphicPoint> points;
+	GraphicColorTimeLine fillColor;
 
 	void Serialize(CArchive& ar);
 	GraphicPolygon();

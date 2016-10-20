@@ -32,7 +32,6 @@ GraphicPoint::GraphicPoint(const GraphicPoint & o)
 	this->shadowWidth = o.shadowWidth;
 }
 
-IMPLEMENT_SERIAL(GraphicPoint, CObject, 1)
 void GraphicPoint::Serialize(CArchive & ar)
 {
 	if (ar.IsLoading())
@@ -59,3 +58,52 @@ void GraphicPoint::Serialize(CArchive & ar)
 	}
 }
 
+GraphicColorTimeLine::GraphicColorTimeLine()
+{
+	setAttrAtFrame(0, 0);
+}
+
+GraphicColorTimeLine::~GraphicColorTimeLine()
+{
+}
+
+DWORD GraphicColorTimeLine::atFrame(int frame)
+{
+	if (attr.size() == 0)
+	{
+		return 0;
+	}
+
+	DWORD attr1, attr2;
+	int frame1 = -1, frame2 = -1;
+
+	for (auto it = attr.begin(); it != attr.end(); ++it)
+	{
+		if (frame < (*it).first)
+		{
+			frame2 = (*it).first;
+			attr2 = (*it).second;
+		}
+	}
+	for (auto it = attr.end(); it != attr.begin(); --it)
+	{
+		if (frame >(*it).first)
+		{
+			frame1 = (*it).first;
+			attr1 = (*it).second;
+		}
+	}
+
+	if (frame1 == -1 && frame2 == -1)
+	{
+		return 0;
+	}
+
+	if (frame1 == -1)
+		return attr2;
+
+	if (frame2 == -1)
+		return attr1;
+
+	return blendColor(attr1, attr2, ((double)frame - frame1) / (frame2 - frame1));
+}

@@ -116,19 +116,54 @@ inline void GraphicAttrTimeline<T>::Serialize(CArchive & ar)
 	}
 }
 
+class GraphicColorTimeLine :
+public	GraphicAttrTimeline<DWORD>
+{
+public:
+	GraphicColorTimeLine();
+	~GraphicColorTimeLine();
+	DWORD atFrame(int frame);
+protected:
+	inline DWORD blendColor(DWORD color1, DWORD color2, double t)
+	{
+		BYTE r1, g1, b1, a1;
+		BYTE r2, g2, b2, a2;
+		BYTE r, g, b, a;
 
-class GraphicPoint :
-CObject
+		r1 = GetRValue(color1);
+		g1 = GetGValue(color1);
+		b1 = GetBValue(color1);
+		a1 = LOBYTE(color1 >> 24);
+
+		r2 = GetRValue(color2);
+		g2 = GetGValue(color2);
+		b2 = GetBValue(color2);
+		a2 = LOBYTE(color2 >> 24);
+
+		r = (BYTE)(t*r1 + (1 - t)*r2);
+		g = (BYTE)(t*g1 + (1 - t)*g2);
+		b = (BYTE)(t*b1 + (1 - t)*b2);
+		a = (BYTE)(t*a1 + (1 - t)*a2);
+
+		DWORD color = RGB(r, g, b) | (DWORD)a << 24;
+
+		return color;
+	}
+
+};
+
+
+class GraphicPoint 
 {
 public :
 	//frame value pair of attr
 	GraphicAttrTimeline<float> x;
 	GraphicAttrTimeline<float> y;
-	GraphicAttrTimeline<DWORD> color;
+	GraphicColorTimeLine color;
 	GraphicAttrTimeline<float> width;
-	GraphicAttrTimeline<DWORD> glowColor;
+	GraphicColorTimeLine glowColor;
 	GraphicAttrTimeline<float> glowWidth;
-	GraphicAttrTimeline<DWORD> shadowColor;
+	GraphicColorTimeLine shadowColor;
 	GraphicAttrTimeline<float> shadowWidth;
 
 	GraphicBasicPoint atFrame(int frame);
@@ -136,7 +171,6 @@ public :
 	GraphicPoint();
 	GraphicPoint(const GraphicPoint & o);
 
-	DECLARE_SERIAL(GraphicPoint)
 	void Serialize(CArchive& ar);
 };
 
