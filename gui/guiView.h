@@ -14,6 +14,35 @@
 
 #pragma once
 
+#define GUI_STATE_NONE 0
+#define GUI_STATE_LINE 1
+#define GUI_STATE_BREAKLINE 2
+#define GUI_STATE_TRANGLE_1 3
+#define GUI_STATE_TRANGLE_2 4
+#define GUI_STATE_RECT 5
+#define GUI_STATE_CIRCLE
+#define GUI_STATE_BEZIER 7
+
+#define GUI_SELECT_MODE_OBJECT 0
+#define GUI_SELECT_MODE_VERTEX 1
+
+#define GUI_SELECT_TOOL_POINTER 0
+#define GUI_SELECT_TOOL_RECT 1
+
+#define GUI_TOOL_NONE 0
+#define GUI_TOOL_ADD_LINE 1
+#define GUI_TOOL_ADD_BREAKLINE 2
+#define GUI_TOOL_ADD_TRANGLE 3
+#define GUI_TOOL_ADD_RECT 4
+#define GUI_TOOL_ADD_CIRCLE 5
+#define GUI_TOOL_ADD_BEZIER 6
+#define GUI_TOOL_ADD_CAMERA 7
+#define GUI_TOOL_EDIT_MOVE 8
+#define GUI_TOOL_EDIT_SCALE 9
+#define GUI_TOOL_EDIT_ROTATE 10
+#define GUI_TOOL_CAMERA_PAN 11
+
+
 
 class CguiView : public CView
 {
@@ -24,7 +53,15 @@ protected: // create from serialization only
 // Attributes
 public:
 	CguiDoc* GetDocument() const;
+	int state;
+	int selectMode;
+	int selectTool;
+	int editTool;
+	int cameraTool;
+	int frame;
 
+	std::vector<GUID_> selectedGraphic;
+	std::vector<GraphicPoint *> selectedPoint;
 // Operations
 public:
 
@@ -77,6 +114,29 @@ public:
 	afx_msg void OnBtnSelRect();
 	afx_msg void OnBtnMoveUp();
 	afx_msg void OnBtnMoveDown();
+	afx_msg void OnUpdateBtnSelObj(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateBtnSelVertex(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateBtnSelClick(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateBtnSelRect(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateBtnAddLine(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateBtnAddBreakLine(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateBtnAddTriangle(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateBtnAddRectangle(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateBtnAddCircle(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateBtnAddBezier(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateBtnMove(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateBtnScale(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateBtnRotate(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateBtnMoveUp(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateBtnMoveDown(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateBtnToPolygon(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateBtnRemove(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateFrameNext(CCmdUI *pCmdUI);
+	afx_msg void OnUpdateFramePrev(CCmdUI *pCmdUI);
+protected:
+
+//	afx_msg LRESULT OnViewreset(WPARAM wParam, LPARAM lParam);
+	afx_msg LRESULT OnViewReset(WPARAM wParam, LPARAM lParam);
 };
 
 #ifndef _DEBUG  // debug version in guiView.cpp

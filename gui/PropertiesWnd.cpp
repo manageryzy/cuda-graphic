@@ -147,9 +147,11 @@ void CPropertiesWnd::OnUpdateSortProperties(CCmdUI* pCmdUI)
 void CPropertiesWnd::OnProperties1()
 {
 	// TODO: Add your command handler code here
+	m_wndPropList.RemoveAll();
+	m_wndPropList.AdjustLayout();
 }
 
-void CPropertiesWnd::OnUpdateProperties1(CCmdUI* /*pCmdUI*/)
+void CPropertiesWnd::OnUpdateProperties1(CCmdUI* pCmdUI)
 {
 	// TODO: Add your command update UI handler code here
 }

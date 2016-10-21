@@ -70,7 +70,7 @@ void CguiDoc::Serialize(CArchive& ar)
 	if (ar.IsStoring())
 	{
 		// TODO: add storing code here
-		ar << 0x41445543;
+		ar << (DWORD)0x41445543;
 
 		ar << this->grphics.size();
 		for (auto & g : this->grphics)
@@ -88,7 +88,7 @@ void CguiDoc::Serialize(CArchive& ar)
 	else
 	{
 		// TODO: add loading code here
-		int magic;
+		DWORD magic;
 		ar >> magic;
 		if (magic != 0x41445543)
 			throw "wrong magic number";
@@ -183,3 +183,19 @@ void CguiDoc::Dump(CDumpContext& dc) const
 
 
 // CguiDoc commands
+
+
+BOOL CguiDoc::OnOpenDocument(LPCTSTR lpszPathName)
+{
+	if (!CDocument::OnOpenDocument(lpszPathName))
+		return FALSE;
+
+	POSITION pos = GetFirstViewPosition();
+	auto view = GetNextView(pos);
+	if (view != nullptr)
+	{
+		view->PostMessageW(WM_VIEW_RESET);
+	}
+
+	return TRUE;
+}

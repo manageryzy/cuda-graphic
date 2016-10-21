@@ -61,3 +61,4 @@
 #endif
 
 
+#define WM_VIEW_RESET (WM_USER + 100)
