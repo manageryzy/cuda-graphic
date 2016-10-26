@@ -32,9 +32,12 @@ public:
 
 // Operations
 public:
+	bool inited = false;
 	std::map<GUID_, std::auto_ptr<Graphic>> grphics;// store the elements 
 	std::vector<GUID_> layer;// store the order of layer
-
+	std::map<GUID_,GraphicCamera> cameras; // store the camera
+	GUID_ currentCamera;
+	
 // Overrides
 public:
 	virtual BOOL OnNewDocument();

@@ -41,13 +41,17 @@ inline T GraphicAttrTimeline<T>::atFrame(int frame)
 
 	for (auto it = attr.begin(); it != attr.end(); ++it)
 	{
-		if (frame < (*it).first)
+		if (frame == (*it).first)
+		{
+			return (*it).second;
+		}
+		else if (frame < (*it).first)
 		{
 			frame2 = (*it).first;
 			attr2 = (*it).second;
 		}
 	}
-	for (auto it = attr.end(); it != attr.begin(); --it)
+	for (auto it = attr.end()-1; it != attr.begin(); --it)
 	{
 		if (frame >(*it).first)
 		{
@@ -81,7 +85,11 @@ inline void GraphicAttrTimeline<T>::setAttrAtFrame(T val, int frame)
 
 	for (auto i = attr.begin(); i != attr.end(); ++i)
 	{
-		if (frame < i->first)
+		if (frame == i->first)
+		{
+			i->second = val;
+		}
+		else if (frame < i->first)
 		{
 			attr.insert(i, std::pair<int, T >(frame, val ));
 			break;
@@ -170,6 +178,7 @@ public :
 
 	GraphicPoint();
 	GraphicPoint(const GraphicPoint & o);
+	void init();
 
 	void Serialize(CArchive& ar);
 };

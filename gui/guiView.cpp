@@ -19,8 +19,13 @@
 #include "gui.h"
 #endif
 
+#include <memory>
+
 #include "guiDoc.h"
 #include "guiView.h"
+
+#include <d2d1.h>
+#include <d3d11_1.h>
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -80,6 +85,14 @@ BEGIN_MESSAGE_MAP(CguiView, CView)
 	ON_UPDATE_COMMAND_UI(ID_FRAME_NEXT, &CguiView::OnUpdateFrameNext)
 	ON_UPDATE_COMMAND_UI(ID_FRAME_PREV, &CguiView::OnUpdateFramePrev)
 	ON_MESSAGE(WM_VIEW_RESET, &CguiView::OnViewReset)
+	ON_WM_TIMER()
+	ON_WM_MOUSEMOVE()
+	ON_WM_MOUSEHWHEEL()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
+	ON_WM_RBUTTONDOWN()
+	ON_WM_MBUTTONDOWN()
+	ON_WM_MBUTTONUP()
 END_MESSAGE_MAP()
 
 // CguiView construction/destruction
@@ -92,12 +105,46 @@ CguiView::CguiView()
 	editTool = GUI_TOOL_NONE;
 	cameraTool = GUI_TOOL_NONE;
 
+	frame = 0;
+
 	selectedGraphic.clear();
 	selectedPoint.clear();
+
+	lastFrame = std::chrono::steady_clock::now();
+
+	HRESULT hr = D2D1CreateFactory(
+		D2D1_FACTORY_TYPE_SINGLE_THREADED,
+		&pD2DFactory
+	);
+	if (hr != S_OK)throw hr;
+	
+
+	hr = DWriteCreateFactory(
+		DWRITE_FACTORY_TYPE_SHARED,
+		__uuidof(pDWriteFactory),
+		reinterpret_cast<IUnknown **>(&pDWriteFactory)
+	);
+	if (hr != S_OK)throw hr;
+
+	hr = pDWriteFactory->CreateTextFormat(
+		L"Verdana",
+		NULL,
+		DWRITE_FONT_WEIGHT_NORMAL,
+		DWRITE_FONT_STYLE_NORMAL,
+		DWRITE_FONT_STRETCH_NORMAL,
+		12,
+		L"", //locale
+		&pTextFormat
+	);
+	if (hr != S_OK)throw hr;
+
 }
 
 CguiView::~CguiView()
 {
+	SafeRelease(&pD2DFactory);
+	SafeRelease(&pDWriteFactory);
+	SafeRelease(&pTextFormat);
 }
 
 BOOL CguiView::PreCreateWindow(CREATESTRUCT& cs)
@@ -112,12 +159,143 @@ BOOL CguiView::PreCreateWindow(CREATESTRUCT& cs)
 
 void CguiView::OnDraw(CDC* /*pDC*/)
 {
+	drawed = true;
 	CguiDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
 		return;
 
-	// TODO: add draw code for native data here
+	if (!pDoc->inited)
+		return;
+
+	RECT rc;
+	GetClientRect(&rc);
+
+	ID2D1HwndRenderTarget* pRT = NULL;
+	HRESULT hr = pD2DFactory->CreateHwndRenderTarget(
+		D2D1::RenderTargetProperties(),
+		D2D1::HwndRenderTargetProperties(
+			GetSafeHwnd(),
+			D2D1::SizeU(
+				rc.right - rc.left,
+				rc.bottom - rc.top)
+		),
+		&pRT
+	);
+
+	ID2D1SolidColorBrush* pGrayBrush = NULL;
+	if (SUCCEEDED(hr))
+	{
+
+		pRT->CreateSolidColorBrush(
+			D2D1::ColorF(D2D1::ColorF::Gray),
+			&pGrayBrush
+		);
+	}
+
+	ID2D1SolidColorBrush* pRedBrush = NULL;
+	if (SUCCEEDED(hr))
+	{
+
+		pRT->CreateSolidColorBrush(
+			D2D1::ColorF(D2D1::ColorF::Red),
+			&pRedBrush
+		);
+	}
+
+	ID2D1SolidColorBrush* pWhiteBrush = NULL;
+	if (SUCCEEDED(hr))
+	{
+
+		pRT->CreateSolidColorBrush(
+			D2D1::ColorF(D2D1::ColorF::White),
+			&pWhiteBrush
+		);
+	}
+
+
+	ID2D1SolidColorBrush* pGreenBrush = NULL;
+	if (SUCCEEDED(hr))
+	{
+		pRT->CreateSolidColorBrush(
+			D2D1::ColorF(D2D1::ColorF::Green),
+			&pGreenBrush
+		);
+	}
+
+	ASSERT(pDoc != nullptr);
+	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
+	GraphicCamera & camera = pDoc->cameras[pDoc->currentCamera];
+	
+	pRT->BeginDraw();
+	pRT->Clear();
+	// begin draw
+	
+	if (selectMode == GUI_SELECT_MODE_OBJECT)
+	{
+		for (auto & guid : selectedGraphic)
+		{
+			ASSERT(pDoc->grphics.find(guid) != pDoc->grphics.end());
+			ASSERT(pDoc->grphics[guid].get() != nullptr);
+
+			Graphic * g = pDoc->grphics[guid].get();
+			switch (g->type)
+			{
+			case GRA_POLYGON:
+				{
+					// try to render polygon here
+					ASSERT(g->graphicPolygon.get() != nullptr);
+					auto polygon = g->graphicPolygon.get();
+					auto ptList = polygon->atFrame(frame);
+					auto lastPoint = ptList.begin();
+					for (auto i = ptList.begin()+1; i < ptList.end(); ++i)
+					{
+						auto pt1 = camera.toCameraView(lastPoint->x, lastPoint->y);
+						auto pt2 = camera.toCameraView(i->x, i->y);
+
+						pRT->DrawLine(pt1, pt2, pWhiteBrush, (i->width + lastPoint->width) / 2);
+
+						lastPoint = i;
+					}
+				}
+				break;
+			case GRA_CIRCLE:
+				// try to render circle here
+				break;
+			case GRA_BEZIER:
+				// try to render bezier here
+				break;
+			case GRA_NONE:
+				break;
+			default:
+				throw "unkown type";
+			}	
+		}
+		
+	}
+	else if (selectMode == GUI_SELECT_MODE_VERTEX)
+	{
+		for (auto & pt : selectedPoint)
+		{
+			
+		}
+	}
+	
+
+	// end draw
+	std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+	int fps = (int)(1000000.0 / (std::chrono::duration_cast<std::chrono::microseconds>(now - lastFrame).count()));
+	lastFrame = now;
+	CString fpsStr;
+	fpsStr.Format(L"FPS:%d ", fps);
+	pRT->DrawTextW(fpsStr, fpsStr.GetLength(), pTextFormat, D2D1::RectF(0, 0, 1000, 30), pGreenBrush);
+	hr = pRT->EndDraw();
+	
+	SafeRelease(&pRT);
+	SafeRelease(&pGrayBrush);
+	SafeRelease(&pGreenBrush);
+	SafeRelease(&pRedBrush);
+	SafeRelease(&pWhiteBrush);
 }
 
 void CguiView::OnRButtonUp(UINT /* nFlags */, CPoint point)
@@ -467,4 +645,203 @@ afx_msg LRESULT CguiView::OnViewReset(WPARAM wParam, LPARAM lParam)
 	selectedPoint.clear();
 
 	return 0;
+}
+
+
+void CguiView::OnTimer(UINT_PTR nIDEvent)
+{
+
+	CView::OnTimer(nIDEvent);
+
+	if (nIDEvent == TIMERID_REFRESH && drawed)
+	{
+		drawed = false;
+		Invalidate(0);		
+	}
+		
+
+}
+
+
+void CguiView::OnInitialUpdate()
+{
+	CView::OnInitialUpdate();
+	SetTimer(TIMERID_REFRESH, 20, 0);
+}
+
+
+void CguiView::OnMouseMove(UINT nFlags, CPoint point)
+{
+	CView::OnMouseMove(nFlags, point);
+
+	CguiDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
+	GraphicCamera camera = pDoc->cameras[pDoc->currentCamera];
+
+	auto worldPoint = camera.toWorld(point.x, point.y);
+
+	switch (state)
+	{
+	case GUI_STATE_NONE:
+		break;
+	case GUI_STATE_LINE:
+		ASSERT(selectedGraphic.size() == 1);
+		ASSERT(pDoc->grphics.find(selectedGraphic[0]) != pDoc->grphics.end());
+		{
+			auto * g = pDoc->grphics[selectedGraphic[0]].get();
+			ASSERT(g->type == GRA_POLYGON);
+			g->graphicPolygon->points[1].x.setAttrAtFrame(worldPoint.x, frame);
+			g->graphicPolygon->points[1].y.setAttrAtFrame(worldPoint.y, frame);
+		}
+		break;
+	case GUI_STATE_RECT:
+		break;
+	case GUI_STATE_TRANGLE_1:
+		break;
+	case GUI_STATE_TRANGLE_2:
+		break;
+	case GUI_STATE_BREAKLINE:
+		break;
+	case GUI_STATE_CIRCLE:
+		break;
+	case GUI_STATE_BEZIER:
+		break;
+	}
+}
+
+
+void CguiView::OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt)
+{
+	CView::OnMouseHWheel(nFlags, zDelta, pt);
+}
+
+
+void CguiView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	CguiDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
+	GraphicCamera camera = pDoc->cameras[pDoc->currentCamera];
+
+	auto worldPoint = camera.toWorld(point.x, point.y);
+
+	CView::OnLButtonDown(nFlags, point);
+	if (state == GUI_STATE_NONE)
+	{
+		if (cameraTool == GUI_TOOL_NONE)
+		{
+			if (editTool == GUI_TOOL_NONE)
+			{
+				// select objects
+			}
+			else if (editTool == GUI_TOOL_EDIT_MOVE || editTool == GUI_TOOL_EDIT_ROTATE || editTool == GUI_TOOL_EDIT_SCALE)
+			{
+				// edit
+			}
+			else {
+				// add
+				selectedPoint.clear();
+				selectedGraphic.clear();
+
+				Graphic * g = new Graphic();
+				g->init();
+				pDoc->grphics[g->guid] = std::auto_ptr<Graphic>(g);
+				selectedGraphic.push_back(g->guid);
+
+				switch (editTool)
+				{
+				case GUI_TOOL_ADD_LINE:
+					{
+						g->graphicPolygon = std::auto_ptr<GraphicPolygon>(new GraphicPolygon);
+						GraphicPoint pt = GraphicPoint();
+						pt.init();
+						pt.x.setAttrAtFrame(worldPoint.x, frame);
+						pt.y.setAttrAtFrame(worldPoint.y, frame);
+					
+						g->graphicPolygon->points.push_back(pt);
+						g->graphicPolygon->points.push_back(pt);
+
+						g->type = GRA_POLYGON;
+						state = GUI_STATE_LINE;
+					}
+					break;
+				case GUI_TOOL_ADD_BREAKLINE:
+					{
+
+					}
+					break;
+				case GUI_TOOL_ADD_TRANGLE:
+					{
+
+					}
+					break;
+				case GUI_TOOL_ADD_RECT:
+					{
+
+					}
+					break;
+				}
+			}
+		}
+	}
+	else
+	{
+		
+		switch (state)
+		{
+		case GUI_STATE_LINE:
+			ASSERT(selectedGraphic.size() == 1);
+			ASSERT(pDoc->grphics.find(selectedGraphic[0]) != pDoc->grphics.end());
+			{
+				auto * g = pDoc->grphics[selectedGraphic[0]].get();
+				ASSERT(g->type == GRA_POLYGON);
+				g->graphicPolygon->points[1].x.setAttrAtFrame(worldPoint.x, frame);
+				g->graphicPolygon->points[1].y.setAttrAtFrame(worldPoint.y, frame);
+				state = GUI_STATE_NONE;
+				editTool = GUI_TOOL_NONE;
+			}
+			break;
+		case GUI_STATE_BREAKLINE:
+			break;
+		case GUI_STATE_TRANGLE_1:
+			break;
+		case GUI_STATE_TRANGLE_2:
+			break;
+		case GUI_STATE_RECT:
+			break;
+		case GUI_STATE_CIRCLE:
+			break;
+		case GUI_STATE_BEZIER:
+			break;
+		default:
+			throw "unkown state";
+		}
+	}
+}
+
+
+void CguiView::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	CView::OnLButtonUp(nFlags, point);
+}
+
+
+void CguiView::OnRButtonDown(UINT nFlags, CPoint point)
+{
+	CView::OnRButtonDown(nFlags, point);
+}
+
+
+void CguiView::OnMButtonDown(UINT nFlags, CPoint point)
+{
+	CView::OnMButtonDown(nFlags, point);
+}
+
+
+void CguiView::OnMButtonUp(UINT nFlags, CPoint point)
+{
+	CView::OnMButtonUp(nFlags, point);
 }

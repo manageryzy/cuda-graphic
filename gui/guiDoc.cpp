@@ -56,6 +56,13 @@ BOOL CguiDoc::OnNewDocument()
 	// (SDI documents will reuse this document)
 	this->grphics.clear();
 	this->layer.clear();
+	this->cameras.clear();
+
+	GraphicCamera defaultCamera;
+	this->cameras[defaultCamera.guid] = defaultCamera;
+	this->currentCamera = defaultCamera.guid;
+
+	inited = true;
 
 	return TRUE;
 }
@@ -84,6 +91,14 @@ void CguiDoc::Serialize(CArchive& ar)
 			l.Serialize(ar);
 		}
 
+		ar << cameras.size();
+		for (auto & c : cameras)
+		{
+			c.second.Serialize(ar);
+		}
+
+		currentCamera.Serialize(ar);
+
 	}
 	else
 	{
@@ -110,6 +125,19 @@ void CguiDoc::Serialize(CArchive& ar)
 			guid.Serialize(ar);
 			this->layer.push_back(guid);
 		}
+
+		int cameraCount;
+		ar >> cameraCount;
+		if (cameraCount == 0)
+			throw "default camera not found";
+		for (auto i = 0; i < cameraCount; i++)
+		{
+			GraphicCamera c;
+			c.Serialize(ar);
+			cameras[c.guid] = c;
+		}
+
+		currentCamera.Serialize(ar);
 	}
 }
 

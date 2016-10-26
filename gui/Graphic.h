@@ -1,16 +1,11 @@
 #pragma once
 
-#include "GraphicStyle.h"
-#include "GraphicPolygon.h"
-#include "GraphicBezier.h"
-#include "GraphicCircle.h"
-
-
 #define GRAPHIC_SETTING_CIRCLE_EDGES 128
 #define GRAPHIC_SETTING_BEZIER_EDGES 1024
 
 enum GraphicType 
 {
+	GRA_NONE,
 	GRA_POLYGON,
 	GRA_CIRCLE,
 	GRA_BEZIER
@@ -46,11 +41,19 @@ public:
 	{
 		a = *((long long unsigned int *) (&o));
 		b = *((long long unsigned int *) (&o)+8);
+
+		return true;
 	}
 
 	void Serialize(CArchive& ar);
+	void Init();
 };
 
+#include "GraphicStyle.h"
+#include "GraphicPolygon.h"
+#include "GraphicBezier.h"
+#include "GraphicCircle.h"
+#include "GraphicCamera.h"
 
 class Graphic 
 {
@@ -67,6 +70,7 @@ public:
 
 	void Serialize(CArchive& ar);
 	void toPolygon();
+	void init();
 	Graphic();
 	~Graphic();
 };

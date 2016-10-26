@@ -42,9 +42,19 @@
 
 #include <afxcontrolbars.h>     // MFC support for ribbons and control bars
 
+template <class T> void inline SafeRelease(T **p)
+{
+	if (*p)
+	{
+		(*p)->Release();
+		*p = nullptr;
+	}
+}
 
 
-
+#pragma comment(lib, "d2d1")
+#pragma comment(lib, "d3d11")
+#pragma comment(lib, "dwrite")
 
 
 
@@ -61,4 +71,6 @@
 #endif
 
 
+
 #define WM_VIEW_RESET (WM_USER + 100)
+#define TIMERID_REFRESH 8

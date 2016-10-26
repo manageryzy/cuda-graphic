@@ -23,13 +23,23 @@ GraphicPoint::GraphicPoint()
 GraphicPoint::GraphicPoint(const GraphicPoint & o)
 {
 	this->x = o.x;
-	this->y = o.x;
+	this->y = o.y;
 	this->color = o.color;
 	this->width = o.width;
 	this->glowColor = o.glowColor;
 	this->glowWidth = o.glowWidth;
 	this->shadowColor = o.shadowColor;
 	this->shadowWidth = o.shadowWidth;
+}
+
+void GraphicPoint::init()
+{
+	color.setAttrAtFrame(0xFFFFFFFF, 0);
+	width.setAttrAtFrame(1.0f, 0);
+	glowColor.setAttrAtFrame(0, 0);
+	glowWidth.setAttrAtFrame(0, 0);
+	shadowColor.setAttrAtFrame(0, 0);
+	shadowWidth.setAttrAtFrame(0, 0);
 }
 
 void GraphicPoint::Serialize(CArchive & ar)
@@ -79,13 +89,17 @@ DWORD GraphicColorTimeLine::atFrame(int frame)
 
 	for (auto it = attr.begin(); it != attr.end(); ++it)
 	{
-		if (frame < (*it).first)
+		if (frame == (*it).first)
+		{
+			return (*it).second;
+		}
+		else if (frame < (*it).first)
 		{
 			frame2 = (*it).first;
 			attr2 = (*it).second;
 		}
 	}
-	for (auto it = attr.end(); it != attr.begin(); --it)
+	for (auto it = attr.end()-1; it != attr.begin(); --it)
 	{
 		if (frame >(*it).first)
 		{

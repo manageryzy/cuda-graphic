@@ -30,6 +30,8 @@ void Graphic::Serialize(CArchive & ar)
 
 		switch (type)
 		{
+		case GRA_NONE:
+			break;
 		case GRA_POLYGON:
 			graphicPolygon.reset(new GraphicPolygon);
 			graphicPolygon->Serialize(ar);
@@ -58,6 +60,8 @@ void Graphic::Serialize(CArchive & ar)
 
 		switch (type)
 		{
+		case GRA_NONE:
+			break;
 		case GRA_POLYGON:
 			graphicPolygon->Serialize(ar);
 			break;
@@ -77,16 +81,26 @@ void Graphic::toPolygon()
 {
 	switch (this->type)
 	{
+	case GRA_NONE:
 	case GRA_POLYGON:
 		break;
 	case GRA_CIRCLE:
 		this->graphicPolygon.reset(this->graphicCircle->toPolygon());
 		this->graphicCircle.reset(nullptr);
+		this->type = GRA_POLYGON;
 		break;
 	case GRA_BEZIER:
 		this->graphicPolygon.reset(this->graphicBezier->toPolygon());
-
+		this->graphicBezier.reset(nullptr);
+		this->type = GRA_POLYGON;
 	}
+}
+
+void Graphic::init()
+{
+	this->guid.Init();
+	this->type = GRA_NONE;
+	this->label = L"new Graphic";
 }
 
 void GUID_::Serialize(CArchive & ar)
@@ -101,4 +115,11 @@ void GUID_::Serialize(CArchive & ar)
 		ar << a;
 		ar << b;
 	}
+}
+
+void GUID_::Init()
+{
+	GUID guid;
+	CoCreateGuid(&guid);
+	(*this) = guid;
 }

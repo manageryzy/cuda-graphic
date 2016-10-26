@@ -189,6 +189,7 @@
   <ItemGroup>
     <ClInclude Include="Graphic.h" />
     <ClInclude Include="GraphicBezier.h" />
+    <ClInclude Include="GraphicCamera.h" />
     <ClInclude Include="GraphicCircle.h" />
     <ClInclude Include="GraphicStyle.h" />
     <ClInclude Include="GraphicPolygon.h" />
@@ -208,6 +209,7 @@
   <ItemGroup>
     <ClCompile Include="Graphic.cpp" />
     <ClCompile Include="GraphicBezier.cpp" />
+    <ClCompile Include="GraphicCamera.cpp" />
     <ClCompile Include="GraphicCircle.cpp" />
     <ClCompile Include="GraphicPolygon.cpp" />
     <ClCompile Include="GraphicStyle.cpp" />

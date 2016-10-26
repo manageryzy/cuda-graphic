@@ -20,7 +20,7 @@
 #define GUI_STATE_TRANGLE_1 3
 #define GUI_STATE_TRANGLE_2 4
 #define GUI_STATE_RECT 5
-#define GUI_STATE_CIRCLE
+#define GUI_STATE_CIRCLE 6
 #define GUI_STATE_BEZIER 7
 
 #define GUI_SELECT_MODE_OBJECT 0
@@ -36,13 +36,13 @@
 #define GUI_TOOL_ADD_RECT 4
 #define GUI_TOOL_ADD_CIRCLE 5
 #define GUI_TOOL_ADD_BEZIER 6
-#define GUI_TOOL_ADD_CAMERA 7
+//#define GUI_TOOL_ADD_CAMERA 7
 #define GUI_TOOL_EDIT_MOVE 8
 #define GUI_TOOL_EDIT_SCALE 9
 #define GUI_TOOL_EDIT_ROTATE 10
 #define GUI_TOOL_CAMERA_PAN 11
 
-
+#include <chrono>
 
 class CguiView : public CView
 {
@@ -53,6 +53,13 @@ protected: // create from serialization only
 // Attributes
 public:
 	CguiDoc* GetDocument() const;
+
+	ID2D1Factory* pD2DFactory = NULL;
+	IDWriteTextFormat * pTextFormat = NULL;
+	IDWriteFactory * pDWriteFactory = NULL;
+	bool drawed = true;
+	std::chrono::steady_clock::time_point lastFrame;
+
 	int state;
 	int selectMode;
 	int selectTool;
@@ -137,6 +144,16 @@ protected:
 
 //	afx_msg LRESULT OnViewreset(WPARAM wParam, LPARAM lParam);
 	afx_msg LRESULT OnViewReset(WPARAM wParam, LPARAM lParam);
+public:
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	virtual void OnInitialUpdate();
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt);
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnRButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnMButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnMButtonUp(UINT nFlags, CPoint point);
 };
 
 #ifndef _DEBUG  // debug version in guiView.cpp
