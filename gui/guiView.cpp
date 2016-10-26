@@ -93,6 +93,7 @@ BEGIN_MESSAGE_MAP(CguiView, CView)
 	ON_WM_RBUTTONDOWN()
 	ON_WM_MBUTTONDOWN()
 	ON_WM_MBUTTONUP()
+	ON_WM_LBUTTONDBLCLK()
 END_MESSAGE_MAP()
 
 // CguiView construction/destruction
@@ -697,12 +698,47 @@ void CguiView::OnMouseMove(UINT nFlags, CPoint point)
 		}
 		break;
 	case GUI_STATE_RECT:
+		ASSERT(selectedGraphic.size() == 1);
+		ASSERT(pDoc->grphics.find(selectedGraphic[0]) != pDoc->grphics.end());
+		{
+			auto * g = pDoc->grphics[selectedGraphic[0]].get();
+			ASSERT(g->type == GRA_POLYGON);
+			g->graphicPolygon->points[1].x.setAttrAtFrame(worldPoint.x, frame);
+			g->graphicPolygon->points[2].x.setAttrAtFrame(worldPoint.x, frame);
+			g->graphicPolygon->points[2].y.setAttrAtFrame(worldPoint.y, frame);
+			g->graphicPolygon->points[3].y.setAttrAtFrame(worldPoint.y, frame);
+		}
 		break;
 	case GUI_STATE_TRANGLE_1:
+		ASSERT(selectedGraphic.size() == 1);
+		ASSERT(pDoc->grphics.find(selectedGraphic[0]) != pDoc->grphics.end());
+		{
+			auto * g = pDoc->grphics[selectedGraphic[0]].get();
+			ASSERT(g->type == GRA_POLYGON);
+			g->graphicPolygon->points[1].x.setAttrAtFrame(worldPoint.x, frame);
+			g->graphicPolygon->points[1].y.setAttrAtFrame(worldPoint.y, frame);
+		}
 		break;
 	case GUI_STATE_TRANGLE_2:
+		ASSERT(selectedGraphic.size() == 1);
+		ASSERT(pDoc->grphics.find(selectedGraphic[0]) != pDoc->grphics.end());
+		{
+			auto * g = pDoc->grphics[selectedGraphic[0]].get();
+			ASSERT(g->type == GRA_POLYGON);
+			g->graphicPolygon->points[2].x.setAttrAtFrame(worldPoint.x, frame);
+			g->graphicPolygon->points[2].y.setAttrAtFrame(worldPoint.y, frame);
+		}
 		break;
 	case GUI_STATE_BREAKLINE:
+		ASSERT(selectedGraphic.size() == 1);
+		ASSERT(pDoc->grphics.find(selectedGraphic[0]) != pDoc->grphics.end());
+		{
+			auto * g = pDoc->grphics[selectedGraphic[0]].get();
+			ASSERT(g->type == GRA_POLYGON);
+			int ed = g->graphicPolygon->points.size() - 1;
+			g->graphicPolygon->points[ed].x.setAttrAtFrame(worldPoint.x, frame);
+			g->graphicPolygon->points[ed].y.setAttrAtFrame(worldPoint.y, frame);
+		}
 		break;
 	case GUI_STATE_CIRCLE:
 		break;
@@ -770,17 +806,52 @@ void CguiView::OnLButtonDown(UINT nFlags, CPoint point)
 					break;
 				case GUI_TOOL_ADD_BREAKLINE:
 					{
+						g->graphicPolygon = std::auto_ptr<GraphicPolygon>(new GraphicPolygon);
+						GraphicPoint pt = GraphicPoint();
+						pt.init();
+						pt.x.setAttrAtFrame(worldPoint.x, frame);
+						pt.y.setAttrAtFrame(worldPoint.y, frame);
 
+						g->graphicPolygon->points.push_back(pt);
+						g->graphicPolygon->points.push_back(pt);
+
+						g->type = GRA_POLYGON;
+						state = GUI_STATE_BREAKLINE;
 					}
 					break;
 				case GUI_TOOL_ADD_TRANGLE:
 					{
+						g->graphicPolygon = std::auto_ptr<GraphicPolygon>(new GraphicPolygon);
+						GraphicPoint pt = GraphicPoint();
+						pt.init();
+						pt.x.setAttrAtFrame(worldPoint.x, frame);
+						pt.y.setAttrAtFrame(worldPoint.y, frame);
 
+						g->graphicPolygon->points.push_back(pt);
+						g->graphicPolygon->points.push_back(pt);
+						g->graphicPolygon->points.push_back(pt);
+						g->graphicPolygon->points.push_back(pt);
+
+						g->type = GRA_POLYGON;
+						state = GUI_STATE_TRANGLE_1;
 					}
 					break;
 				case GUI_TOOL_ADD_RECT:
 					{
+						g->graphicPolygon = std::auto_ptr<GraphicPolygon>(new GraphicPolygon);
+						GraphicPoint pt = GraphicPoint();
+						pt.init();
+						pt.x.setAttrAtFrame(worldPoint.x, frame);
+						pt.y.setAttrAtFrame(worldPoint.y, frame);
 
+						g->graphicPolygon->points.push_back(pt);
+						g->graphicPolygon->points.push_back(pt);
+						g->graphicPolygon->points.push_back(pt);
+						g->graphicPolygon->points.push_back(pt);
+						g->graphicPolygon->points.push_back(pt);
+
+						g->type = GRA_POLYGON;
+						state = GUI_STATE_RECT;
 					}
 					break;
 				}
@@ -805,12 +876,53 @@ void CguiView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 			break;
 		case GUI_STATE_BREAKLINE:
+			ASSERT(selectedGraphic.size() == 1);
+			ASSERT(pDoc->grphics.find(selectedGraphic[0]) != pDoc->grphics.end());
+			{
+				auto * g = pDoc->grphics[selectedGraphic[0]].get();
+				ASSERT(g->type == GRA_POLYGON);
+				int ed = g->graphicPolygon->points.size() - 1;
+				g->graphicPolygon->points[ed].x.setAttrAtFrame(worldPoint.x, frame);
+				g->graphicPolygon->points[ed].y.setAttrAtFrame(worldPoint.y, frame);
+				g->graphicPolygon->points.push_back(g->graphicPolygon->points[ed]);
+			}
 			break;
 		case GUI_STATE_TRANGLE_1:
+			ASSERT(selectedGraphic.size() == 1);
+			ASSERT(pDoc->grphics.find(selectedGraphic[0]) != pDoc->grphics.end());
+			{
+				auto * g = pDoc->grphics[selectedGraphic[0]].get();
+				ASSERT(g->type == GRA_POLYGON);
+				g->graphicPolygon->points[1].x.setAttrAtFrame(worldPoint.x, frame);
+				g->graphicPolygon->points[1].y.setAttrAtFrame(worldPoint.y, frame);
+				state = GUI_STATE_TRANGLE_2;
+			}
 			break;
 		case GUI_STATE_TRANGLE_2:
+			ASSERT(selectedGraphic.size() == 1);
+			ASSERT(pDoc->grphics.find(selectedGraphic[0]) != pDoc->grphics.end());
+			{
+				auto * g = pDoc->grphics[selectedGraphic[0]].get();
+				ASSERT(g->type == GRA_POLYGON);
+				g->graphicPolygon->points[2].x.setAttrAtFrame(worldPoint.x, frame);
+				g->graphicPolygon->points[2].y.setAttrAtFrame(worldPoint.y, frame);
+				state = GUI_STATE_NONE;
+				editTool = GUI_TOOL_NONE;
+			}
 			break;
 		case GUI_STATE_RECT:
+			ASSERT(selectedGraphic.size() == 1);
+			ASSERT(pDoc->grphics.find(selectedGraphic[0]) != pDoc->grphics.end());
+			{
+				auto * g = pDoc->grphics[selectedGraphic[0]].get();
+				ASSERT(g->type == GRA_POLYGON);
+				g->graphicPolygon->points[1].x.setAttrAtFrame(worldPoint.x, frame);
+				g->graphicPolygon->points[2].x.setAttrAtFrame(worldPoint.x, frame);
+				g->graphicPolygon->points[2].y.setAttrAtFrame(worldPoint.y, frame);
+				g->graphicPolygon->points[3].y.setAttrAtFrame(worldPoint.y, frame);
+				state = GUI_STATE_NONE;
+				editTool = GUI_TOOL_NONE;
+			}
 			break;
 		case GUI_STATE_CIRCLE:
 			break;
@@ -844,4 +956,33 @@ void CguiView::OnMButtonDown(UINT nFlags, CPoint point)
 void CguiView::OnMButtonUp(UINT nFlags, CPoint point)
 {
 	CView::OnMButtonUp(nFlags, point);
+}
+
+
+void CguiView::OnLButtonDblClk(UINT nFlags, CPoint point)
+{
+	CView::OnLButtonDblClk(nFlags, point);
+
+	CguiDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
+	GraphicCamera camera = pDoc->cameras[pDoc->currentCamera];
+
+	auto worldPoint = camera.toWorld(point.x, point.y);
+
+	if (state == GUI_STATE_BREAKLINE)
+	{
+		auto close = MessageBox(L"close breakline?", 0, MB_YESNO);
+		if (close == IDYES)
+		{
+			ASSERT(selectedGraphic.size() == 1);
+			ASSERT(pDoc->grphics.find(selectedGraphic[0]) != pDoc->grphics.end());
+			auto * g = pDoc->grphics[selectedGraphic[0]].get();
+			ASSERT(g->type == GRA_POLYGON);
+			g->graphicPolygon->points.push_back(g->graphicPolygon->points[0]);
+		}
+		state = GUI_STATE_NONE;
+		editTool = GUI_TOOL_NONE;
+	}
 }
