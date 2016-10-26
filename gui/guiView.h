@@ -36,13 +36,18 @@
 #define GUI_TOOL_ADD_RECT 4
 #define GUI_TOOL_ADD_CIRCLE 5
 #define GUI_TOOL_ADD_BEZIER 6
-//#define GUI_TOOL_ADD_CAMERA 7
+#define GUI_TOOL_ADD_WACOM 7
 #define GUI_TOOL_EDIT_MOVE 8
 #define GUI_TOOL_EDIT_SCALE 9
 #define GUI_TOOL_EDIT_ROTATE 10
 #define GUI_TOOL_CAMERA_PAN 11
 
 #include <chrono>
+#include "WINTAB.H"
+#define PACKETDATA	PK_X | PK_Y | PK_CURSOR | PK_BUTTONS | PK_NORMAL_PRESSURE
+#define PACKETMODE	1
+#include "pktdef.h"
+#include "TabletUtils.h"
 
 class CguiView : public CView
 {
@@ -69,6 +74,13 @@ public:
 
 	std::vector<GUID_> selectedGraphic;
 	std::vector<GraphicPoint *> selectedPoint;
+
+private:
+	//wacom
+	LOGCONTEXTA lc;
+	HCTX hCtx;
+	CMutex *pWTMutex;
+
 // Operations
 public:
 
@@ -155,6 +167,12 @@ public:
 	afx_msg void OnMButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnMButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonDblClk(UINT nFlags, CPoint point);
+	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+protected:
+	afx_msg LRESULT OnWtPacket(WPARAM wParam, LPARAM lParam);
+public:
+	afx_msg void OnBtnAddWacom();
+	afx_msg void OnUpdateBtnAddWacom(CCmdUI *pCmdUI);
 };
 
 #ifndef _DEBUG  // debug version in guiView.cpp

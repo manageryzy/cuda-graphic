@@ -23,6 +23,7 @@
 
 #include "guiDoc.h"
 #include "guiView.h"
+char * gpszProgramName = "CUDAX";
 
 #include <d2d1.h>
 #include <d3d11_1.h>
@@ -94,6 +95,10 @@ BEGIN_MESSAGE_MAP(CguiView, CView)
 	ON_WM_MBUTTONDOWN()
 	ON_WM_MBUTTONUP()
 	ON_WM_LBUTTONDBLCLK()
+	ON_WM_CREATE()
+	ON_MESSAGE(WT_PACKET, &CguiView::OnWtPacket)
+	ON_COMMAND(ID_BTN_ADD_WACOM, &CguiView::OnBtnAddWacom)
+	ON_UPDATE_COMMAND_UI(ID_BTN_ADD_WACOM, &CguiView::OnUpdateBtnAddWacom)
 END_MESSAGE_MAP()
 
 // CguiView construction/destruction
@@ -139,6 +144,8 @@ CguiView::CguiView()
 	);
 	if (hr != S_OK)throw hr;
 
+	pWTMutex = new CMutex(TRUE, NULL, NULL);
+	hCtx = 0;
 }
 
 CguiView::~CguiView()
@@ -146,6 +153,12 @@ CguiView::~CguiView()
 	SafeRelease(&pD2DFactory);
 	SafeRelease(&pDWriteFactory);
 	SafeRelease(&pTextFormat);
+
+	delete pWTMutex;
+	if (hCtx)
+	{
+		gpWTClose(hCtx);
+	}
 }
 
 BOOL CguiView::PreCreateWindow(CREATESTRUCT& cs)
@@ -248,6 +261,8 @@ void CguiView::OnDraw(CDC* /*pDC*/)
 					ASSERT(g->graphicPolygon.get() != nullptr);
 					auto polygon = g->graphicPolygon.get();
 					auto ptList = polygon->atFrame(frame);
+					if (ptList.size() < 2)
+						continue;
 					auto lastPoint = ptList.begin();
 					for (auto i = ptList.begin()+1; i < ptList.end(); ++i)
 					{
@@ -503,6 +518,14 @@ void CguiView::OnBtnMoveDown()
 	// TODO: Add your command handler code here
 }
 
+void CguiView::OnBtnAddWacom()
+{
+	editTool = GUI_TOOL_ADD_WACOM;
+	selectedGraphic.clear();
+	selectedPoint.clear();
+}
+
+
 
 void CguiView::OnUpdateBtnSelObj(CCmdUI *pCmdUI)
 {
@@ -642,6 +665,10 @@ void CguiView::OnUpdateFramePrev(CCmdUI *pCmdUI)
 }
 
 
+void CguiView::OnUpdateBtnAddWacom(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetRadio(state == GUI_STATE_NONE && editTool == GUI_TOOL_ADD_WACOM);
+}
 
 
 
@@ -1031,3 +1058,110 @@ void CguiView::OnLButtonDblClk(UINT nFlags, CPoint point)
 		editTool = GUI_TOOL_NONE;
 	}
 }
+
+
+int CguiView::OnCreate(LPCREATESTRUCT lpCreateStruct)
+{
+	if (CView::OnCreate(lpCreateStruct) == -1)
+		return -1;
+
+	// Open a Wintab context
+
+	// Get default context information
+	gpWTInfoA(WTI_DEFCONTEXT, 0, &lc);
+
+	// Open the context
+	lc.lcPktData = PACKETDATA;
+	lc.lcPktMode = PACKETMODE;
+	lc.lcOptions = CXO_MESSAGES;
+	lc.lcSysMode = 1;
+	hCtx = gpWTOpenA(m_hWnd, &lc, TRUE);
+	return 0;
+}
+
+
+afx_msg LRESULT CguiView::OnWtPacket(WPARAM wSerial, LPARAM hCtx)
+{
+	// Read the packet
+	PACKET pkt;
+	gpWTPacket((HCTX)hCtx, wSerial, &pkt);
+
+	// Process packets in order, one at a time
+	CSingleLock lock(pWTMutex, TRUE);
+
+	// Get window size
+	RECT window_rect;
+	RECT desktop_rect;
+	//GetWindowPlacement(&window_rect);
+	GetWindowRect(&window_rect);
+	GetDesktopWindow()->GetWindowRect(&desktop_rect);
+
+	int sizeX = desktop_rect.right - desktop_rect.left;
+	int sizeY = desktop_rect.bottom - desktop_rect.top;
+
+	int absX = (pkt.pkX * sizeX) / lc.lcInExtX + lc.lcSysOrgX;
+	int absY = sizeY - (pkt.pkY * sizeY) / lc.lcInExtY + lc.lcSysOrgY;
+
+	int x = absX - window_rect.left;
+	int y = absY - window_rect.top;
+
+	SetCursorPos(absX, absY);
+
+	if (editTool == GUI_TOOL_ADD_WACOM)
+	{
+		auto pDoc = GetDocument();
+		if (pDoc == nullptr)
+			return 0;
+
+		if (selectedGraphic.size() > 1)
+		{
+			selectedGraphic.clear();
+		}
+		else if (selectedGraphic.size() == 1)
+		{
+			auto g = pDoc->grphics[selectedGraphic[0]].get();
+			if (g->type != GRA_POLYGON)
+			{
+				selectedGraphic.clear();
+				return 0;
+			}
+
+			if (!pkt.pkButtons && g->graphicPolygon->points.size()>1)
+			{
+				selectedGraphic.clear();
+				return 0;
+			}
+
+			if (pkt.pkButtons)
+			{
+				ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
+				GraphicCamera camera = pDoc->cameras[pDoc->currentCamera];
+
+				auto pts = g->graphicPolygon.get();
+
+				GraphicPoint pt;
+				auto pos = camera.toWorld(x, y);
+				pt.init();
+				pt.x.setAttrAtFrame(pos.x, frame);
+				pt.y.setAttrAtFrame(pos.y, frame);
+				pt.width.setAttrAtFrame(pkt.pkNormalPressure/100, frame);
+
+				pts->points.push_back(pt);
+			}
+		}
+		else if (selectedGraphic.size() == 0)
+		{
+			Graphic * g = new Graphic;
+			g->init();
+			g->graphicPolygon = std::auto_ptr<GraphicPolygon>(new GraphicPolygon);
+			g->type = GRA_POLYGON;
+			pDoc->grphics[g->guid] = std::auto_ptr<Graphic>(g);
+			selectedGraphic.push_back(g->guid);
+		}
+		
+	}
+	
+	return 0;
+}
+
+

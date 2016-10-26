@@ -68,6 +68,23 @@ CguiApp theApp;
 
 BOOL CguiApp::InitInstance()
 {
+	//init wacom support
+	if (!LoadWintab())
+	{
+		ShowError("Wintab not available");
+		return FALSE;
+	}
+
+	/* check if WinTab available. */
+	if (!gpWTInfoA(0, 0, NULL)) {
+		MessageBox(NULL, L"WinTab Services Not Available.", L"Error",
+			MB_OK | MB_ICONHAND);
+		UnloadWintab();
+		return FALSE;
+	}
+
+
+
 	// InitCommonControlsEx() is required on Windows XP if an application
 	// manifest specifies use of ComCtl32.dll version 6 or later to enable
 	// visual styles.  Otherwise, any window creation will fail.
@@ -148,6 +165,8 @@ BOOL CguiApp::InitInstance()
 	//  In an SDI app, this should occur after ProcessShellCommand
 	// Enable drag/drop open
 	m_pMainWnd->DragAcceptFiles();
+
+	
 	return TRUE;
 }
 
