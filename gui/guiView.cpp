@@ -261,7 +261,18 @@ void CguiView::OnDraw(CDC* /*pDC*/)
 				}
 				break;
 			case GRA_CIRCLE:
-				// try to render circle here
+				{
+					// try to render circle here
+					ASSERT(g->graphicCircle.get() != nullptr);
+					auto circle = g->graphicCircle.get();
+					auto pt = camera.toCameraView(circle->x.atFrame(frame), circle->y.atFrame(frame));
+					auto r = camera.scale * circle->r.atFrame(frame);
+					D2D1_ELLIPSE eclipse;
+					eclipse.point = pt;
+					eclipse.radiusX = r;
+					eclipse.radiusY = r;
+					pRT->DrawEllipse(eclipse, pWhiteBrush, circle->width.atFrame(frame));
+				}
 				break;
 			case GRA_BEZIER:
 				// try to render bezier here
@@ -741,6 +752,17 @@ void CguiView::OnMouseMove(UINT nFlags, CPoint point)
 		}
 		break;
 	case GUI_STATE_CIRCLE:
+		ASSERT(selectedGraphic.size() == 1);
+		ASSERT(pDoc->grphics.find(selectedGraphic[0]) != pDoc->grphics.end());
+		ASSERT(pDoc->grphics.find(selectedGraphic[0]) != pDoc->grphics.end());
+		{
+			auto * g = pDoc->grphics[selectedGraphic[0]].get();
+			ASSERT(g->type == GRA_CIRCLE);
+			auto x = g->graphicCircle->x.atFrame(frame);
+			auto y = g->graphicCircle->y.atFrame(frame);
+			float r = sqrtf((x - worldPoint.x)*(x - worldPoint.x) + (y - worldPoint.y)*(y - worldPoint.y));
+			g->graphicCircle->r.setAttrAtFrame(r, frame);
+		}
 		break;
 	case GUI_STATE_BEZIER:
 		break;
@@ -854,6 +876,16 @@ void CguiView::OnLButtonDown(UINT nFlags, CPoint point)
 						state = GUI_STATE_RECT;
 					}
 					break;
+				case GUI_TOOL_ADD_CIRCLE:
+					{
+						g->graphicCircle = std::auto_ptr<GraphicCircle>(new GraphicCircle);
+						g->graphicCircle->init();
+						g->graphicCircle->x.setAttrAtFrame(worldPoint.x, frame);
+						g->graphicCircle->y.setAttrAtFrame(worldPoint.y, frame);
+
+						g->type = GRA_CIRCLE;
+						state = GUI_STATE_CIRCLE;
+					}
 				}
 			}
 		}
@@ -925,6 +957,19 @@ void CguiView::OnLButtonDown(UINT nFlags, CPoint point)
 			}
 			break;
 		case GUI_STATE_CIRCLE:
+			ASSERT(selectedGraphic.size() == 1);
+			ASSERT(pDoc->grphics.find(selectedGraphic[0]) != pDoc->grphics.end());
+			ASSERT(pDoc->grphics.find(selectedGraphic[0]) != pDoc->grphics.end());
+			{
+				auto * g = pDoc->grphics[selectedGraphic[0]].get();
+				ASSERT(g->type == GRA_CIRCLE);
+				auto x = g->graphicCircle->x.atFrame(frame);
+				auto y = g->graphicCircle->y.atFrame(frame);
+				float r = sqrtf((x - worldPoint.x)*(x - worldPoint.x) + (y - worldPoint.y)*(y - worldPoint.y));
+				g->graphicCircle->r.setAttrAtFrame(r, frame);
+				state = GUI_STATE_NONE;
+				editTool = GUI_TOOL_NONE;
+			}
 			break;
 		case GUI_STATE_BEZIER:
 			break;

@@ -106,3 +106,15 @@ std::vector<GraphicBasicPoint> GraphicCircle::atFrame(int frame)
 	}
 	return pts;
 }
+
+void GraphicCircle::init()
+{
+	fillColor.setAttrAtFrame(0, 0);
+	color.setAttrAtFrame(0xFFFFFFFF, 0);
+	glowColor.setAttrAtFrame(0, 0);
+	shadowColor.setAttrAtFrame(0, 0);
+	width.setAttrAtFrame(1.0f, 0);
+	glowWidth.setAttrAtFrame(0, 0);
+	shadowWidth.setAttrAtFrame(0, 0);
+	r.setAttrAtFrame(0, 0);
+}

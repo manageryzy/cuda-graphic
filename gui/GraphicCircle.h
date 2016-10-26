@@ -10,6 +10,7 @@ public:
 	void Serialize(CArchive& ar);
 	GraphicPolygon * toPolygon();
 	std::vector<GraphicBasicPoint> atFrame(int frame);
+	void init();
 	GraphicCircle();
 	~GraphicCircle();
 };
