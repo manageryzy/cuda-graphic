@@ -19,7 +19,7 @@ void GraphicPolygon::Serialize(CArchive & ar)
 {
 	if (ar.IsLoading())
 	{
-		int len;
+		long long int len;
 		ar >> len;
 		for (auto i = 0; i < len; i++)
 		{

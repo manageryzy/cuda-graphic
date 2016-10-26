@@ -99,6 +99,7 @@ BEGIN_MESSAGE_MAP(CguiView, CView)
 	ON_MESSAGE(WT_PACKET, &CguiView::OnWtPacket)
 	ON_COMMAND(ID_BTN_ADD_WACOM, &CguiView::OnBtnAddWacom)
 	ON_UPDATE_COMMAND_UI(ID_BTN_ADD_WACOM, &CguiView::OnUpdateBtnAddWacom)
+	ON_COMMAND(ID_SELECT_ALL, &CguiView::OnSelectAll)
 END_MESSAGE_MAP()
 
 // CguiView construction/destruction
@@ -207,6 +208,19 @@ void CguiView::OnDraw(CDC* /*pDC*/)
 		);
 	}
 
+	ID2D1StrokeStyle * style = NULL;
+	if (SUCCEEDED(hr))
+	{
+		pD2DFactory->CreateStrokeStyle(
+			D2D1::StrokeStyleProperties(
+				D2D1_CAP_STYLE_ROUND,
+				D2D1_CAP_STYLE_ROUND,
+				D2D1_CAP_STYLE_ROUND
+			),
+			0, 0, &style
+		);
+	}
+
 	ID2D1SolidColorBrush* pRedBrush = NULL;
 	if (SUCCEEDED(hr))
 	{
@@ -239,7 +253,7 @@ void CguiView::OnDraw(CDC* /*pDC*/)
 
 	ASSERT(pDoc != nullptr);
 	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
-	GraphicCamera & camera = pDoc->cameras[pDoc->currentCamera];
+	GraphicCamera * camera = pDoc->cameras[pDoc->currentCamera].get();
 	
 	pRT->BeginDraw();
 	pRT->Clear();
@@ -266,10 +280,10 @@ void CguiView::OnDraw(CDC* /*pDC*/)
 					auto lastPoint = ptList.begin();
 					for (auto i = ptList.begin()+1; i < ptList.end(); ++i)
 					{
-						auto pt1 = camera.toCameraView(lastPoint->x, lastPoint->y);
-						auto pt2 = camera.toCameraView(i->x, i->y);
+						auto pt1 = camera->toCameraView(lastPoint->x, lastPoint->y);
+						auto pt2 = camera->toCameraView(i->x, i->y);
 
-						pRT->DrawLine(pt1, pt2, pWhiteBrush, (i->width + lastPoint->width) / 2);
+						pRT->DrawLine(pt1, pt2, pWhiteBrush, (i->width + lastPoint->width) / 2, style);
 
 						lastPoint = i;
 					}
@@ -280,13 +294,13 @@ void CguiView::OnDraw(CDC* /*pDC*/)
 					// try to render circle here
 					ASSERT(g->graphicCircle.get() != nullptr);
 					auto circle = g->graphicCircle.get();
-					auto pt = camera.toCameraView(circle->x.atFrame(frame), circle->y.atFrame(frame));
-					auto r = camera.scale * circle->r.atFrame(frame);
+					auto pt = camera->toCameraView(circle->x.atFrame(frame), circle->y.atFrame(frame));
+					auto r = camera->scale * circle->r.atFrame(frame);
 					D2D1_ELLIPSE eclipse;
 					eclipse.point = pt;
 					eclipse.radiusX = r;
 					eclipse.radiusY = r;
-					pRT->DrawEllipse(eclipse, pWhiteBrush, circle->width.atFrame(frame));
+					pRT->DrawEllipse(eclipse, pWhiteBrush, circle->width.atFrame(frame), style);
 				}
 				break;
 			case GRA_BEZIER:
@@ -323,6 +337,7 @@ void CguiView::OnDraw(CDC* /*pDC*/)
 	SafeRelease(&pGreenBrush);
 	SafeRelease(&pRedBrush);
 	SafeRelease(&pWhiteBrush);
+	SafeRelease(&style);
 }
 
 void CguiView::OnRButtonUp(UINT /* nFlags */, CPoint point)
@@ -717,9 +732,9 @@ void CguiView::OnMouseMove(UINT nFlags, CPoint point)
 	ASSERT_VALID(pDoc);
 
 	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
-	GraphicCamera camera = pDoc->cameras[pDoc->currentCamera];
+	GraphicCamera * camera = pDoc->cameras[pDoc->currentCamera].get();
 
-	auto worldPoint = camera.toWorld(point.x, point.y);
+	auto worldPoint = camera->toWorld(point.x, point.y);
 
 	switch (state)
 	{
@@ -809,9 +824,9 @@ void CguiView::OnLButtonDown(UINT nFlags, CPoint point)
 	ASSERT_VALID(pDoc);
 
 	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
-	GraphicCamera camera = pDoc->cameras[pDoc->currentCamera];
+	GraphicCamera * camera = pDoc->cameras[pDoc->currentCamera].get();
 
-	auto worldPoint = camera.toWorld(point.x, point.y);
+	auto worldPoint = camera->toWorld(point.x, point.y);
 
 	CView::OnLButtonDown(nFlags, point);
 	if (state == GUI_STATE_NONE)
@@ -835,6 +850,7 @@ void CguiView::OnLButtonDown(UINT nFlags, CPoint point)
 				g->init();
 				pDoc->grphics[g->guid] = std::auto_ptr<Graphic>(g);
 				selectedGraphic.push_back(g->guid);
+				pDoc->layer.push_back(g->guid);
 
 				switch (editTool)
 				{
@@ -1039,9 +1055,9 @@ void CguiView::OnLButtonDblClk(UINT nFlags, CPoint point)
 	ASSERT_VALID(pDoc);
 
 	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
-	GraphicCamera camera = pDoc->cameras[pDoc->currentCamera];
+	GraphicCamera * camera = pDoc->cameras[pDoc->currentCamera].get();
 
-	auto worldPoint = camera.toWorld(point.x, point.y);
+	auto worldPoint = camera->toWorld(point.x, point.y);
 
 	if (state == GUI_STATE_BREAKLINE)
 	{
@@ -1135,16 +1151,16 @@ afx_msg LRESULT CguiView::OnWtPacket(WPARAM wSerial, LPARAM hCtx)
 			if (pkt.pkButtons)
 			{
 				ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
-				GraphicCamera camera = pDoc->cameras[pDoc->currentCamera];
+				GraphicCamera * camera = pDoc->cameras[pDoc->currentCamera].get();
 
 				auto pts = g->graphicPolygon.get();
 
 				GraphicPoint pt;
-				auto pos = camera.toWorld(x, y);
+				auto pos = camera->toWorld(x, y);
 				pt.init();
 				pt.x.setAttrAtFrame(pos.x, frame);
 				pt.y.setAttrAtFrame(pos.y, frame);
-				pt.width.setAttrAtFrame(pkt.pkNormalPressure/100, frame);
+				pt.width.setAttrAtFrame(pkt.pkNormalPressure/128, frame);
 
 				pts->points.push_back(pt);
 			}
@@ -1157,6 +1173,7 @@ afx_msg LRESULT CguiView::OnWtPacket(WPARAM wSerial, LPARAM hCtx)
 			g->type = GRA_POLYGON;
 			pDoc->grphics[g->guid] = std::auto_ptr<Graphic>(g);
 			selectedGraphic.push_back(g->guid);
+			pDoc->layer.push_back(g->guid);
 		}
 		
 	}
@@ -1164,4 +1181,17 @@ afx_msg LRESULT CguiView::OnWtPacket(WPARAM wSerial, LPARAM hCtx)
 	return 0;
 }
 
+void CguiView::OnSelectAll()
+{
+	auto pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
 
+	if (state == GUI_STATE_NONE && selectMode == GUI_SELECT_MODE_OBJECT)
+	{
+		selectedGraphic.clear();
+		for (auto & guid : pDoc->layer)
+		{
+			selectedGraphic.push_back(guid);
+		}
+	}
+}

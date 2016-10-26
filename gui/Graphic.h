@@ -24,23 +24,32 @@ public:
 		this->b = o.b;
 	}
 
-	bool const operator==(const GUID_ &o) {
-		return a == o.a && b == o.b;
-	}
-
 	bool operator<(const GUID_ &o)  const {
 		if (a < o.a)
 			return true;
-		if (b < o.b)
+		if (a == o.a && b < o.b)
 			return true;
 
 		return false;
 	}
 
+	bool operator>(const GUID_ &o)  const {
+		if (a > o.a)
+			return true;
+		if (a==o.a &&b > o.b)
+			return true;
+
+		return false;
+	}
+
+	bool operator==(const GUID_ &o)  const {
+		return a == o.a && b == o.b;
+	}
+
 	bool operator=(const GUID &o)
 	{
 		a = *((long long unsigned int *) (&o));
-		b = *((long long unsigned int *) (&o)+8);
+		b = *((long long unsigned int *) (&o)+1);
 
 		return true;
 	}

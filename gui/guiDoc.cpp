@@ -58,9 +58,9 @@ BOOL CguiDoc::OnNewDocument()
 	this->layer.clear();
 	this->cameras.clear();
 
-	GraphicCamera defaultCamera;
-	this->cameras[defaultCamera.guid] = defaultCamera;
-	this->currentCamera = defaultCamera.guid;
+	GraphicCamera * defaultCamera = new GraphicCamera;
+	this->cameras[defaultCamera->guid] = std::auto_ptr<GraphicCamera>(defaultCamera);
+	this->currentCamera = defaultCamera->guid;
 
 	inited = true;
 
@@ -94,7 +94,7 @@ void CguiDoc::Serialize(CArchive& ar)
 		ar << cameras.size();
 		for (auto & c : cameras)
 		{
-			c.second.Serialize(ar);
+			c.second->Serialize(ar);
 		}
 
 		currentCamera.Serialize(ar);
@@ -108,7 +108,7 @@ void CguiDoc::Serialize(CArchive& ar)
 		if (magic != 0x41445543)
 			throw "wrong magic number";
 
-		int graphicCount;
+		long long int graphicCount;
 		ar >> graphicCount;
 		for (auto i = 0; i < graphicCount; i++)
 		{
@@ -117,7 +117,7 @@ void CguiDoc::Serialize(CArchive& ar)
 			this->grphics[g->guid] = std::auto_ptr<Graphic>(g);
 		}
 
-		int layerCount;
+		long long int layerCount;
 		ar >> layerCount;
 		for (auto i = 0; i < layerCount; i++)
 		{
@@ -126,15 +126,15 @@ void CguiDoc::Serialize(CArchive& ar)
 			this->layer.push_back(guid);
 		}
 
-		int cameraCount;
+		long long int cameraCount;
 		ar >> cameraCount;
 		if (cameraCount == 0)
 			throw "default camera not found";
 		for (auto i = 0; i < cameraCount; i++)
 		{
-			GraphicCamera c;
-			c.Serialize(ar);
-			cameras[c.guid] = c;
+			GraphicCamera * c = new GraphicCamera;
+			c->Serialize(ar);
+			cameras[c->guid] = std::auto_ptr<GraphicCamera>(c);
 		}
 
 		currentCamera.Serialize(ar);

@@ -23,6 +23,8 @@ void Graphic::Serialize(CArchive & ar)
 		// load guid
 		guid.Serialize(ar);
 
+		ar >> label;
+
 		// an silly way to load type
 		int t;
 		ar >> t;

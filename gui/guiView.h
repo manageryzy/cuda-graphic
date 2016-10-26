@@ -173,6 +173,7 @@ protected:
 public:
 	afx_msg void OnBtnAddWacom();
 	afx_msg void OnUpdateBtnAddWacom(CCmdUI *pCmdUI);
+	afx_msg void OnSelectAll();
 };
 
 #ifndef _DEBUG  // debug version in guiView.cpp
