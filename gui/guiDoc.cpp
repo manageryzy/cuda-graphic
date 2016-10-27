@@ -64,6 +64,13 @@ BOOL CguiDoc::OnNewDocument()
 
 	inited = true;
 
+	POSITION pos = GetFirstViewPosition();
+	auto view = GetNextView(pos);
+	if (view != nullptr)
+	{
+		view->PostMessageW(WM_VIEW_RESET);
+	}
+
 	return TRUE;
 }
 

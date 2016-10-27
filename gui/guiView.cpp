@@ -100,6 +100,8 @@ BEGIN_MESSAGE_MAP(CguiView, CView)
 	ON_COMMAND(ID_BTN_ADD_WACOM, &CguiView::OnBtnAddWacom)
 	ON_UPDATE_COMMAND_UI(ID_BTN_ADD_WACOM, &CguiView::OnUpdateBtnAddWacom)
 	ON_COMMAND(ID_SELECT_ALL, &CguiView::OnSelectAll)
+	ON_UPDATE_COMMAND_UI(ID_PAN, &CguiView::OnUpdatePan)
+	ON_WM_MOUSEWHEEL()
 END_MESSAGE_MAP()
 
 // CguiView construction/destruction
@@ -458,19 +460,31 @@ void CguiView::OnBtnChooseCamera()
 
 void CguiView::OnBtnZoomIn()
 {
-	// TODO: Add your command handler code here
+	CguiDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
+	GraphicCamera * camera = pDoc->cameras[pDoc->currentCamera].get();
+
+	camera->scale = camera->scale * 2.0f;
 }
 
 
 void CguiView::OnBtnZoomOut()
 {
-	// TODO: Add your command handler code here
+	CguiDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
+	GraphicCamera * camera = pDoc->cameras[pDoc->currentCamera].get();
+
+	camera->scale = camera->scale * 0.5f;
 }
 
 
 void CguiView::OnPan()
 {
-	// TODO: Add your command handler code here
+	cameraTool = GUI_TOOL_CAMERA_PAN;
 }
 
 
@@ -668,6 +682,12 @@ void CguiView::OnUpdateBtnRemove(CCmdUI *pCmdUI)
 }
 
 
+void CguiView::OnUpdatePan(CCmdUI *pCmdUI)
+{
+	pCmdUI->SetRadio(cameraTool == GUI_TOOL_CAMERA_PAN);
+}
+
+
 void CguiView::OnUpdateFrameNext(CCmdUI *pCmdUI)
 {
 	
@@ -808,6 +828,13 @@ void CguiView::OnMouseMove(UINT nFlags, CPoint point)
 		break;
 	case GUI_STATE_BEZIER:
 		break;
+	case GUI_STATE_PAN:
+		{
+			auto change = point - lastPointerPos;
+			camera->x = panCamera.x - change.cx / panCamera.scale;
+			camera->y = panCamera.y - change.cy / panCamera.scale;
+		}
+		break;
 	}
 }
 
@@ -815,6 +842,7 @@ void CguiView::OnMouseMove(UINT nFlags, CPoint point)
 void CguiView::OnMouseHWheel(UINT nFlags, short zDelta, CPoint pt)
 {
 	CView::OnMouseHWheel(nFlags, zDelta, pt);
+
 }
 
 
@@ -932,6 +960,20 @@ void CguiView::OnLButtonDown(UINT nFlags, CPoint point)
 				}
 			}
 		}
+		else
+		{
+			//camera edit
+			switch (cameraTool)
+			{
+			case GUI_TOOL_CAMERA_PAN:
+				lastPointerPos = point;
+				state = GUI_STATE_PAN;
+				panCamera = *camera;
+				break;
+			default:
+				throw "unknow camera tool";
+			}
+		}
 	}
 	else
 	{
@@ -1016,6 +1058,8 @@ void CguiView::OnLButtonDown(UINT nFlags, CPoint point)
 			break;
 		case GUI_STATE_BEZIER:
 			break;
+		case GUI_STATE_PAN:
+			break;
 		default:
 			throw "unkown state";
 		}
@@ -1026,6 +1070,16 @@ void CguiView::OnLButtonDown(UINT nFlags, CPoint point)
 void CguiView::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	CView::OnLButtonUp(nFlags, point);
+
+	switch (state)
+	{
+		case GUI_STATE_PAN:
+		{
+			state = GUI_STATE_NONE;
+		}	
+		break;
+
+	}
 }
 
 
@@ -1038,12 +1092,27 @@ void CguiView::OnRButtonDown(UINT nFlags, CPoint point)
 void CguiView::OnMButtonDown(UINT nFlags, CPoint point)
 {
 	CView::OnMButtonDown(nFlags, point);
+
+	CguiDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
+	GraphicCamera * camera = pDoc->cameras[pDoc->currentCamera].get();
+
+	cameraTool == GUI_TOOL_CAMERA_PAN;
+	stateBackUp = state;
+	state = GUI_STATE_PAN;
+	lastPointerPos = point;
+	panCamera = *camera;
 }
 
 
 void CguiView::OnMButtonUp(UINT nFlags, CPoint point)
 {
 	CView::OnMButtonUp(nFlags, point);
+
+	cameraTool == GUI_TOOL_NONE;
+	state = stateBackUp;
 }
 
 
@@ -1160,7 +1229,7 @@ afx_msg LRESULT CguiView::OnWtPacket(WPARAM wSerial, LPARAM hCtx)
 				pt.init();
 				pt.x.setAttrAtFrame(pos.x, frame);
 				pt.y.setAttrAtFrame(pos.y, frame);
-				pt.width.setAttrAtFrame(pkt.pkNormalPressure/128, frame);
+				pt.width.setAttrAtFrame(pkt.pkNormalPressure/64, frame);
 
 				pts->points.push_back(pt);
 			}
@@ -1176,6 +1245,18 @@ afx_msg LRESULT CguiView::OnWtPacket(WPARAM wSerial, LPARAM hCtx)
 			pDoc->layer.push_back(g->guid);
 		}
 		
+	}
+	else if(pkt.pkButtons!=oldPenDown)
+	{
+		if (pkt.pkButtons)
+		{
+			mouse_event(MOUSEEVENTF_LEFTDOWN, absX, absY, 0, 0);
+		}
+		else
+		{
+			mouse_event(MOUSEEVENTF_LEFTUP, absX, absY, 0, 0);
+		}
+		oldPenDown = pkt.pkButtons;
 	}
 	
 	return 0;
@@ -1194,4 +1275,29 @@ void CguiView::OnSelectAll()
 			selectedGraphic.push_back(guid);
 		}
 	}
+}
+
+
+
+
+BOOL CguiView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
+{
+	
+
+	CguiDoc* pDoc = GetDocument();
+	ASSERT_VALID(pDoc);
+
+	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
+	GraphicCamera * camera = pDoc->cameras[pDoc->currentCamera].get();
+
+	if (zDelta > 0)
+	{
+		camera->scale = camera->scale * (1+zDelta / 240.f);
+	}
+	else if(zDelta < 0)
+	{
+		camera->scale = camera->scale / (1-zDelta / 240.f);
+	}
+
+	return CView::OnMouseWheel(nFlags, zDelta, pt);
 }

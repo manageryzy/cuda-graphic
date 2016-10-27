@@ -22,6 +22,7 @@
 #define GUI_STATE_RECT 5
 #define GUI_STATE_CIRCLE 6
 #define GUI_STATE_BEZIER 7
+#define GUI_STATE_PAN 8
 
 #define GUI_SELECT_MODE_OBJECT 0
 #define GUI_SELECT_MODE_VERTEX 1
@@ -66,6 +67,7 @@ public:
 	std::chrono::steady_clock::time_point lastFrame;
 
 	int state;
+	int stateBackUp;
 	int selectMode;
 	int selectTool;
 	int editTool;
@@ -75,11 +77,16 @@ public:
 	std::vector<GUID_> selectedGraphic;
 	std::vector<GraphicPoint *> selectedPoint;
 
+	// mouse record
+	CPoint lastPointerPos;
+	GraphicCamera panCamera;
+
 private:
 	//wacom
 	LOGCONTEXTA lc;
 	HCTX hCtx;
 	CMutex *pWTMutex;
+	bool oldPenDown = false;
 
 // Operations
 public:
@@ -174,6 +181,8 @@ public:
 	afx_msg void OnBtnAddWacom();
 	afx_msg void OnUpdateBtnAddWacom(CCmdUI *pCmdUI);
 	afx_msg void OnSelectAll();
+	afx_msg void OnUpdatePan(CCmdUI *pCmdUI);
+	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 };
 
 #ifndef _DEBUG  // debug version in guiView.cpp
