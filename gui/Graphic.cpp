@@ -98,11 +98,28 @@ void Graphic::toPolygon()
 	}
 }
 
-void Graphic::init()
+void Graphic::init(GraphicType type,TCHAR * str)
 {
 	this->guid.Init();
 	this->type = GRA_NONE;
-	this->label = L"new Graphic";
+	this->label = str;
+	this->type = type;
+	switch (type)
+	{
+	case GRA_NONE:
+		break;
+	case GRA_POLYGON:
+		this->graphicPolygon.reset(new GraphicPolygon);
+		break;
+	case GRA_CIRCLE:
+		this->graphicCircle.reset(new GraphicCircle);
+		break;
+	case GRA_BEZIER:
+		this->graphicBezier.reset(new GraphicBezier);
+		break;
+	default:
+		throw "unknown type";
+	}
 }
 
 void GUID_::Serialize(CArchive & ar)

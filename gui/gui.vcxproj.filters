@@ -25,64 +25,133 @@
     <Filter Include="Source Files\misc">
       <UniqueIdentifier>{bf66d1f5-76a2-419b-8a9a-a4b095762073}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\view\tools">
+      <UniqueIdentifier>{88257d35-4a7d-46fa-b1a1-6502b5a89496}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\doc">
+      <UniqueIdentifier>{a3319eaa-f877-4684-acc8-38c2009bde23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\view">
+      <UniqueIdentifier>{41a585ea-df84-4509-9c16-6bb20f4963ef}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\app">
+      <UniqueIdentifier>{241b9e7f-abe9-4134-869d-3c649465cb7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\view\tool">
+      <UniqueIdentifier>{108c7a7f-7c43-47f5-9317-2b0ee32c9bda}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="gui.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="stdafx.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="targetver.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="MainFrm.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="guiDoc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="guiView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Resource.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FileView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ViewTree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="OutputWnd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PropertiesWnd.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SceneView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Graphic.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphicPolygon.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphicCircle.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\doc</Filter>
     </ClInclude>
     <ClInclude Include="GraphicBezier.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="GraphicStyle.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\doc</Filter>
     </ClInclude>
     <ClInclude Include="GraphicCamera.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\doc</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicCircle.h">
+      <Filter>Header Files\doc</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicPolygon.h">
+      <Filter>Header Files\doc</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicStyle.h">
+      <Filter>Header Files\doc</Filter>
+    </ClInclude>
+    <ClInclude Include="ViewTree.h">
+      <Filter>Header Files\view</Filter>
+    </ClInclude>
+    <ClInclude Include="SceneView.h">
+      <Filter>Header Files\view</Filter>
+    </ClInclude>
+    <ClInclude Include="PropertiesWnd.h">
+      <Filter>Header Files\view</Filter>
+    </ClInclude>
+    <ClInclude Include="OutputWnd.h">
+      <Filter>Header Files\view</Filter>
+    </ClInclude>
+    <ClInclude Include="MainFrm.h">
+      <Filter>Header Files\view</Filter>
+    </ClInclude>
+    <ClInclude Include="guiView.h">
+      <Filter>Header Files\view</Filter>
+    </ClInclude>
+    <ClInclude Include="guiDoc.h">
+      <Filter>Header Files\doc</Filter>
+    </ClInclude>
+    <ClInclude Include="FileView.h">
+      <Filter>Header Files\view</Filter>
+    </ClInclude>
+    <ClInclude Include="targetver.h">
+      <Filter>Header Files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="gui.h">
+      <Filter>Header Files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="Resource.h">
+      <Filter>Header Files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="stdafx.h">
+      <Filter>Header Files\app</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicTool.h">
+      <Filter>Header Files\view\tool</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicHistory.h">
+      <Filter>Header Files\view\tool</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicToolAddBezier.h">
+      <Filter>Header Files\view\tool</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicToolAddBreakline.h">
+      <Filter>Header Files\view\tool</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicToolAddCircle.h">
+      <Filter>Header Files\view\tool</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicToolAddLine.h">
+      <Filter>Header Files\view\tool</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicToolAddRect.h">
+      <Filter>Header Files\view\tool</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicToolAddTrangle.h">
+      <Filter>Header Files\view\tool</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicToolAddWacom.h">
+      <Filter>Header Files\view\tool</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicToolCameraPan.h">
+      <Filter>Header Files\view\tool</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicToolCameraZoomIn.h">
+      <Filter>Header Files\view\tool</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicToolMove.h">
+      <Filter>Header Files\view\tool</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicToolRotate.h">
+      <Filter>Header Files\view\tool</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicToolScale.h">
+      <Filter>Header Files\view\tool</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicToolAll.h">
+      <Filter>Header Files\view\tool</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicToolCameraZoomOut.h">
+      <Filter>Header Files\view\tool</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicToolSelecRect.h">
+      <Filter>Header Files\view\tool</Filter>
+    </ClInclude>
+    <ClInclude Include="GraphicToolSelectPointer.h">
+      <Filter>Header Files\view\tool</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -136,6 +205,57 @@
     </ClCompile>
     <ClCompile Include="TabletUtils.cpp">
       <Filter>Source Files\view</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicTool.cpp">
+      <Filter>Source Files\view\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicHistory.cpp">
+      <Filter>Source Files\view\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicToolAddBezier.cpp">
+      <Filter>Source Files\view\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicToolAddBreakline.cpp">
+      <Filter>Source Files\view\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicToolAddCircle.cpp">
+      <Filter>Source Files\view\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicToolAddLine.cpp">
+      <Filter>Source Files\view\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicToolAddRect.cpp">
+      <Filter>Source Files\view\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicToolAddTrangle.cpp">
+      <Filter>Source Files\view\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicToolAddWacom.cpp">
+      <Filter>Source Files\view\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicToolCameraPan.cpp">
+      <Filter>Source Files\view\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicToolCameraZoomIn.cpp">
+      <Filter>Source Files\view\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicToolMove.cpp">
+      <Filter>Source Files\view\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicToolRotate.cpp">
+      <Filter>Source Files\view\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicToolScale.cpp">
+      <Filter>Source Files\view\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicToolCameraZoomOut.cpp">
+      <Filter>Source Files\view\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicToolSelecRect.cpp">
+      <Filter>Source Files\view\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="GraphicToolSelectPointer.cpp">
+      <Filter>Source Files\view\tools</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

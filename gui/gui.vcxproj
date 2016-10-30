@@ -81,9 +81,13 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <LinkIncremental>false</LinkIncremental>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -134,11 +138,22 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <StringPooling>false</StringPooling>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -160,12 +175,22 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <Optimization>MaxSpeed</Optimization>
+      <Optimization>Full</Optimization>
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>_WINDOWS;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <SDLCheck>true</SDLCheck>
       <StringPooling>false</StringPooling>
+      <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
+      <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
+      <OmitFramePointers>true</OmitFramePointers>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <ControlFlowGuard>false</ControlFlowGuard>
+      <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
+      <EnableEnhancedInstructionSet>StreamingSIMDExtensions2</EnableEnhancedInstructionSet>
+      <FloatingPointExceptions>false</FloatingPointExceptions>
+      <CreateHotpatchableImage>false</CreateHotpatchableImage>
+      <EnablePREfast>true</EnablePREfast>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -191,8 +216,26 @@
     <ClInclude Include="GraphicBezier.h" />
     <ClInclude Include="GraphicCamera.h" />
     <ClInclude Include="GraphicCircle.h" />
+    <ClInclude Include="GraphicHistory.h" />
     <ClInclude Include="GraphicStyle.h" />
     <ClInclude Include="GraphicPolygon.h" />
+    <ClInclude Include="GraphicTool.h" />
+    <ClInclude Include="GraphicToolAddBezier.h" />
+    <ClInclude Include="GraphicToolAddBreakline.h" />
+    <ClInclude Include="GraphicToolAddCircle.h" />
+    <ClInclude Include="GraphicToolAddLine.h" />
+    <ClInclude Include="GraphicToolAddRect.h" />
+    <ClInclude Include="GraphicToolAddTrangle.h" />
+    <ClInclude Include="GraphicToolAddWacom.h" />
+    <ClInclude Include="GraphicToolAll.h" />
+    <ClInclude Include="GraphicToolCameraPan.h" />
+    <ClInclude Include="GraphicToolCameraZoomIn.h" />
+    <ClInclude Include="GraphicToolMove.h" />
+    <ClInclude Include="GraphicToolRotate.h" />
+    <ClInclude Include="GraphicToolScale.h" />
+    <ClInclude Include="GraphicToolCameraZoomOut.h" />
+    <ClInclude Include="GraphicToolSelecRect.h" />
+    <ClInclude Include="GraphicToolSelectPointer.h" />
     <ClInclude Include="SceneView.h" />
     <ClInclude Include="FileView.h" />
     <ClInclude Include="gui.h" />
@@ -211,8 +254,25 @@
     <ClCompile Include="GraphicBezier.cpp" />
     <ClCompile Include="GraphicCamera.cpp" />
     <ClCompile Include="GraphicCircle.cpp" />
+    <ClCompile Include="GraphicHistory.cpp" />
     <ClCompile Include="GraphicPolygon.cpp" />
     <ClCompile Include="GraphicStyle.cpp" />
+    <ClCompile Include="GraphicTool.cpp" />
+    <ClCompile Include="GraphicToolAddBezier.cpp" />
+    <ClCompile Include="GraphicToolAddBreakline.cpp" />
+    <ClCompile Include="GraphicToolAddCircle.cpp" />
+    <ClCompile Include="GraphicToolAddLine.cpp" />
+    <ClCompile Include="GraphicToolAddRect.cpp" />
+    <ClCompile Include="GraphicToolAddTrangle.cpp" />
+    <ClCompile Include="GraphicToolAddWacom.cpp" />
+    <ClCompile Include="GraphicToolCameraPan.cpp" />
+    <ClCompile Include="GraphicToolCameraZoomIn.cpp" />
+    <ClCompile Include="GraphicToolMove.cpp" />
+    <ClCompile Include="GraphicToolRotate.cpp" />
+    <ClCompile Include="GraphicToolScale.cpp" />
+    <ClCompile Include="GraphicToolCameraZoomOut.cpp" />
+    <ClCompile Include="GraphicToolSelecRect.cpp" />
+    <ClCompile Include="GraphicToolSelectPointer.cpp" />
     <ClCompile Include="SceneView.cpp" />
     <ClCompile Include="FileView.cpp" />
     <ClCompile Include="gui.cpp" />

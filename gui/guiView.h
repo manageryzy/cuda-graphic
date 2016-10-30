@@ -14,34 +14,34 @@
 
 #pragma once
 
-#define GUI_STATE_NONE 0
-#define GUI_STATE_LINE 1
-#define GUI_STATE_BREAKLINE 2
-#define GUI_STATE_TRANGLE_1 3
-#define GUI_STATE_TRANGLE_2 4
-#define GUI_STATE_RECT 5
-#define GUI_STATE_CIRCLE 6
-#define GUI_STATE_BEZIER 7
-#define GUI_STATE_PAN 8
-
+//#define GUI_STATE_NONE 0
+//#define GUI_STATE_LINE 1
+//#define GUI_STATE_BREAKLINE 2
+//#define GUI_STATE_TRANGLE_1 3
+//#define GUI_STATE_TRANGLE_2 4
+//#define GUI_STATE_RECT 5
+//#define GUI_STATE_CIRCLE 6
+//#define GUI_STATE_BEZIER 7
+//#define GUI_STATE_PAN 8
+//
 #define GUI_SELECT_MODE_OBJECT 0
 #define GUI_SELECT_MODE_VERTEX 1
-
-#define GUI_SELECT_TOOL_POINTER 0
-#define GUI_SELECT_TOOL_RECT 1
-
-#define GUI_TOOL_NONE 0
-#define GUI_TOOL_ADD_LINE 1
-#define GUI_TOOL_ADD_BREAKLINE 2
-#define GUI_TOOL_ADD_TRANGLE 3
-#define GUI_TOOL_ADD_RECT 4
-#define GUI_TOOL_ADD_CIRCLE 5
-#define GUI_TOOL_ADD_BEZIER 6
-#define GUI_TOOL_ADD_WACOM 7
-#define GUI_TOOL_EDIT_MOVE 8
-#define GUI_TOOL_EDIT_SCALE 9
-#define GUI_TOOL_EDIT_ROTATE 10
-#define GUI_TOOL_CAMERA_PAN 11
+//
+//#define GUI_SELECT_TOOL_POINTER 0
+//#define GUI_SELECT_TOOL_RECT 1
+//
+//#define GUI_TOOL_NONE 0
+//#define GUI_TOOL_ADD_LINE 1
+//#define GUI_TOOL_ADD_BREAKLINE 2
+//#define GUI_TOOL_ADD_TRANGLE 3
+//#define GUI_TOOL_ADD_RECT 4
+//#define GUI_TOOL_ADD_CIRCLE 5
+//#define GUI_TOOL_ADD_BEZIER 6
+//#define GUI_TOOL_ADD_WACOM 7
+//#define GUI_TOOL_EDIT_MOVE 8
+//#define GUI_TOOL_EDIT_SCALE 9
+//#define GUI_TOOL_EDIT_ROTATE 10
+//#define GUI_TOOL_CAMERA_PAN 11
 
 #include <chrono>
 #include "WINTAB.H"
@@ -49,6 +49,8 @@
 #define PACKETMODE	1
 #include "pktdef.h"
 #include "TabletUtils.h"
+
+#include "GraphicToolAll.h"
 
 class CguiView : public CView
 {
@@ -66,28 +68,48 @@ public:
 	bool drawed = true;
 	std::chrono::steady_clock::time_point lastFrame;
 
-	int state;
-	int stateBackUp;
+	//int state;
+	//int stateBackUp;
 	int selectMode;
-	int selectTool;
+	/*int selectTool;
 	int editTool;
-	int cameraTool;
+	int cameraTool;*/
+	Graphic * createing = nullptr;
 	int frame;
+	GraphicTool * selectTool = nullptr;
+	GraphicTool * editTool = nullptr;
+	GraphicTool * cameraTool = nullptr;
+	GraphicToolAddBezier * toolAddBezier;
+	GraphicToolAddBreakline * toolAddBreakline;
+	GraphicToolAddCircle * toolAddCircle;
+	GraphicToolAddLine * toolAddLine;
+	GraphicToolAddRect * toolAddRect;
+	GraphicToolAddTrangle * toolAddTrangle;
+	GraphicToolAddWacom * toolAddWacom;
+	GraphicToolCameraPan * toolCameraPan;
+	GraphicToolCameraZoomIn * toolCameraZoomIn;
+	GraphicToolCameraZoomOut * toolCameraZoomOut;
+	GraphicToolMove * toolMove;
+	GraphicToolRotate * toolRotate;
+	GraphicToolScale * toolScale;
+	GraphicToolSelecRect * toolSelectRect;
+	GraphicToolSelectPointer * toolSelectPointer;
 
 	std::vector<GUID_> selectedGraphic;
 	std::vector<GraphicPoint *> selectedPoint;
 
 	// mouse record
-	CPoint lastPointerPos;
-	GraphicCamera panCamera;
+	//CPoint lastPointerPos;
+	//GraphicCamera panCamera;
 
+	void inline renderGraphicFast(Graphic * g, GraphicCamera * camera, ID2D1HwndRenderTarget* pRT, ID2D1SolidColorBrush * brush, ID2D1StrokeStyle * style);
 private:
 	//wacom
 	LOGCONTEXTA lc;
 	HCTX hCtx;
 	CMutex *pWTMutex;
 	bool oldPenDown = false;
-
+	bool inline dispatchToolMsg(int msg, void * param);
 // Operations
 public:
 

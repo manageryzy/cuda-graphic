@@ -79,7 +79,7 @@ public:
 
 	void Serialize(CArchive& ar);
 	void toPolygon();
-	void init();
+	void init(GraphicType type, TCHAR * str);
 	Graphic();
 	~Graphic();
 };
