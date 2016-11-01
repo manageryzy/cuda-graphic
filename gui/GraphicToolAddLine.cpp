@@ -2,6 +2,7 @@
 #include "GraphicToolAddLine.h"
 #include "guiDoc.h"
 #include "guiView.h"
+#include "resource.h"
 
 #define STATE_NONE 0
 #define STATE_PT1 1
@@ -33,11 +34,7 @@ bool GraphicToolAddLine::onLButtonDown(void * point)
 	{
 		view->createing->graphicPolygon->points[1].x.setAttrAtFrame(worldPoint.x, view->frame);
 		view->createing->graphicPolygon->points[1].y.setAttrAtFrame(worldPoint.y, view->frame);
-		pDoc->grphics[view->createing->guid] = std::auto_ptr<Graphic>(view->createing);
-		pDoc->layer.push_back(view->createing->guid);
-		view->selectedGraphic.push_back(view->createing->guid);
-		view->createing = nullptr;
-		view->editTool = nullptr;
+		view->endCreating();
 		state = STATE_NONE;
 
 		//TODO: add history here
@@ -63,17 +60,21 @@ bool GraphicToolAddLine::onMouseMove(void * point)
 	return true;
 }
 
-bool GraphicToolAddLine::onRButtonDown(void *)
+bool GraphicToolAddLine::onRButtonUp(void *)
 {
 	if (state == STATE_PT1)
 	{
-		auto res = MessageBox(view->GetSafeHwnd(), L"cancel?", L"", MB_YESNO);
-		if (res == IDYES)
-		{
-			delete view->createing;
-			view->createing = nullptr;
-			view->editTool = nullptr;
-		}
+		cancel();
+		return true;
+	}
+	return false;
+}
+
+bool GraphicToolAddLine::onESC(void *)
+{
+	if (state == STATE_PT1)
+	{
+		cancel();
 		return true;
 	}
 	return false;
@@ -92,11 +93,24 @@ void GraphicToolAddLine::reset()
 	state = STATE_NONE;
 }
 
+void GraphicToolAddLine::cancel()
+{
+	auto res = MessageBox(view->GetSafeHwnd(), L"cancel?", L"", MB_YESNO);
+	if (res == IDYES)
+	{
+		delete view->createing;
+		view->createing = nullptr;
+		view->editTool = nullptr;
+		state = STATE_NONE;
+	}
+}
+
 
 
 GRA_TOOL_MSG_MAP_START(GraphicToolAddLine)
 GRA_TOOL_MSG_MAP_ON(WM_LBUTTONDOWN, onLButtonDown)
 GRA_TOOL_MSG_MAP_ON(WM_MOUSEMOVE, onMouseMove)
-GRA_TOOL_MSG_MAP_ON(WM_RBUTTONDOWN, onRButtonDown)
+GRA_TOOL_MSG_MAP_ON(WM_RBUTTONUP, onRButtonUp)
+GRA_TOOL_MSG_MAP_ON(ID_ESC,onESC)
 GRA_TOOL_MSG_MAP_END
 

@@ -14,6 +14,7 @@
 #include "SceneView.h"
 #include "Resource.h"
 #include "gui.h"
+#include "guiDoc.h"
 
 class CClassViewMenuButton : public CMFCToolBarMenuButton
 {
@@ -81,7 +82,7 @@ int CSceneView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	if (!m_wndClassView.Create(dwViewStyle, rectDummy, this, 2))
 	{
-		TRACE0("Failed to create Class View\n");
+		TRACE0("Failed to create Scene View\n");
 		return -1;      // fail to create
 	}
 
@@ -126,47 +127,44 @@ void CSceneView::OnSize(UINT nType, int cx, int cy)
 	AdjustLayout();
 }
 
-void CSceneView::FillClassView()
+void CSceneView::FillClassView(CguiDoc * doc)
 {
-	HTREEITEM hRoot = m_wndClassView.InsertItem(_T("FakeApp classes"), 0, 0);
+	m_wndClassView.DeleteAllItems();
+
+	HTREEITEM hRoot = m_wndClassView.InsertItem(_T("Scene"), 0, 0);
 	m_wndClassView.SetItemState(hRoot, TVIS_BOLD, TVIS_BOLD);
+	
 
-	HTREEITEM hClass = m_wndClassView.InsertItem(_T("CFakeAboutDlg"), 1, 1, hRoot);
-	m_wndClassView.InsertItem(_T("CFakeAboutDlg()"), 3, 3, hClass);
-
-	m_wndClassView.Expand(hRoot, TVE_EXPAND);
-
-	hClass = m_wndClassView.InsertItem(_T("CFakeApp"), 1, 1, hRoot);
-	m_wndClassView.InsertItem(_T("CFakeApp()"), 3, 3, hClass);
-	m_wndClassView.InsertItem(_T("InitInstance()"), 3, 3, hClass);
-	m_wndClassView.InsertItem(_T("OnAppAbout()"), 3, 3, hClass);
-
-	hClass = m_wndClassView.InsertItem(_T("CFakeAppDoc"), 1, 1, hRoot);
-	m_wndClassView.InsertItem(_T("CFakeAppDoc()"), 4, 4, hClass);
-	m_wndClassView.InsertItem(_T("~CFakeAppDoc()"), 3, 3, hClass);
-	m_wndClassView.InsertItem(_T("OnNewDocument()"), 3, 3, hClass);
-
-	hClass = m_wndClassView.InsertItem(_T("CFakeAppView"), 1, 1, hRoot);
-	m_wndClassView.InsertItem(_T("CFakeAppView()"), 4, 4, hClass);
-	m_wndClassView.InsertItem(_T("~CFakeAppView()"), 3, 3, hClass);
-	m_wndClassView.InsertItem(_T("GetDocument()"), 3, 3, hClass);
-	m_wndClassView.Expand(hClass, TVE_EXPAND);
-
-	hClass = m_wndClassView.InsertItem(_T("CFakeAppFrame"), 1, 1, hRoot);
-	m_wndClassView.InsertItem(_T("CFakeAppFrame()"), 3, 3, hClass);
-	m_wndClassView.InsertItem(_T("~CFakeAppFrame()"), 3, 3, hClass);
-	m_wndClassView.InsertItem(_T("m_wndMenuBar"), 6, 6, hClass);
-	m_wndClassView.InsertItem(_T("m_wndToolBar"), 6, 6, hClass);
-	m_wndClassView.InsertItem(_T("m_wndStatusBar"), 6, 6, hClass);
-
-	for (auto i = 0; i < 10000; i++)
+	HTREEITEM hClass = m_wndClassView.InsertItem(_T("Camera"), 2, 2, hRoot);
+	if(doc)for (auto & c : doc->cameras)
 	{
-		m_wndClassView.InsertItem(_T("m_wndStatusBar"), 2, 2, hClass);
+		m_wndClassView.InsertItem(c.second->label, 5, 5, hClass);
 	}
-
-	hClass = m_wndClassView.InsertItem(_T("Globals"), 2, 2, hRoot);
-	m_wndClassView.InsertItem(_T("theFakeApp"), 5, 5, hClass);
 	m_wndClassView.Expand(hClass, TVE_EXPAND);
+
+	hClass = m_wndClassView.InsertItem(_T("Graphics"), 2, 2, hRoot);
+	if (doc)for (int i = doc->layer.size()-1;i>=0;i--)
+	{
+		auto g = doc->grphics[doc->layer.at(i)].get();
+		
+		switch (g->type)
+		{
+		case GRA_POLYGON:
+			m_wndClassView.InsertItem(g->label, 1, 1, hClass);
+			break;
+		case GRA_CIRCLE:
+			m_wndClassView.InsertItem(g->label, 3, 3, hClass);
+			break;
+		case GRA_BEZIER:
+			m_wndClassView.InsertItem(g->label, 4, 4, hClass);
+			break;
+		default:
+			break;
+		}
+		
+	}
+	m_wndClassView.Expand(hClass, TVE_EXPAND);
+	m_wndClassView.Expand(hRoot, TVE_EXPAND);
 }
 
 void CSceneView::OnContextMenu(CWnd* pWnd, CPoint point)

@@ -43,13 +43,13 @@ public:
 	virtual void Dump(CDumpContext& dc) const;
 #endif
 
-protected:  // control bar embedded members
+public:  // control bar embedded members
 	CMFCRibbonBar     m_wndRibbonBar;
 	CMFCRibbonApplicationButton m_MainButton;
 	CMFCToolBarImages m_PanelImages;
 	CMFCRibbonStatusBar  m_wndStatusBar;
-	CFileView         m_wndFileView;
-	CSceneView        m_wndClassView;
+	//CFileView         m_wndFileView;
+	CSceneView        m_wndSceneView;
 	COutputWnd        m_wndOutput;
 	CPropertiesWnd    m_wndProperties;
 

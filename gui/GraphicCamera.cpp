@@ -6,6 +6,7 @@ void GraphicCamera::Serialize(CArchive & ar)
 	if (ar.IsLoading())
 	{
 		guid.Serialize(ar);
+		ar >> label;
 		ar >> x;
 		ar >> y;
 		ar >> scale;
@@ -13,6 +14,7 @@ void GraphicCamera::Serialize(CArchive & ar)
 	else if(ar.IsStoring())
 	{
 		guid.Serialize(ar);
+		ar << label;
 		ar << x;
 		ar << y;
 		ar << scale;
@@ -25,5 +27,6 @@ GraphicCamera::GraphicCamera()
 	y = 0;
 	scale = 1;
 	guid.Init();
+	label = L"new Camera";
 }
 

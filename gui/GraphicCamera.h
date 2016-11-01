@@ -5,6 +5,7 @@ class GraphicCamera
 {
 public:
 	GUID_ guid;
+	CString label;
 	float x, y, scale;
 
 	void Serialize(CArchive& ar);

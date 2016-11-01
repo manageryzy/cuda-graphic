@@ -115,6 +115,10 @@ void CguiDoc::Serialize(CArchive& ar)
 		if (magic != 0x41445543)
 			throw "wrong magic number";
 
+		this->grphics.clear();
+		this->layer.clear();
+		this->cameras.clear();
+
 		long long int graphicCount;
 		ar >> graphicCount;
 		for (auto i = 0; i < graphicCount; i++)

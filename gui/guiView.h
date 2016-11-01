@@ -98,6 +98,8 @@ public:
 	std::vector<GUID_> selectedGraphic;
 	std::vector<GraphicPoint *> selectedPoint;
 
+	void endCreating();
+
 	// mouse record
 	//CPoint lastPointerPos;
 	//GraphicCamera panCamera;
@@ -205,6 +207,7 @@ public:
 	afx_msg void OnSelectAll();
 	afx_msg void OnUpdatePan(CCmdUI *pCmdUI);
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
+	afx_msg void OnEsc();
 };
 
 #ifndef _DEBUG  // debug version in guiView.cpp

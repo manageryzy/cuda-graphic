@@ -22,7 +22,7 @@ class CClassToolBar : public CMFCToolBar
 
 	virtual BOOL AllowShowOnList() const { return FALSE; }
 };
-
+class CguiDoc;
 class CSceneView : public CDockablePane
 {
 public:
@@ -32,13 +32,15 @@ public:
 	void AdjustLayout();
 	void OnChangeVisualStyle();
 
+	void FillClassView(CguiDoc * doc = nullptr);
+
 protected:
 	//CClassToolBar m_wndToolBar;
 	CViewTree m_wndClassView;
 	CImageList m_ClassViewImages;
 	UINT m_nCurrSort;
 
-	void FillClassView();
+	
 
 // Overrides
 public:
