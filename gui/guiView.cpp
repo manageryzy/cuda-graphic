@@ -562,7 +562,7 @@ void CguiView::OnBtnMove()
 {
 	if (editTool == nullptr)
 		editTool = toolMove;
-	else if (editTool == toolMove && !toolMove->busy())
+	else if (editTool == toolMove && !toolMove->isBusy())
 		editTool = nullptr;
 }
 
@@ -571,6 +571,8 @@ void CguiView::OnBtnScale()
 {
 	if (editTool == nullptr)
 		editTool = toolScale;
+	else if (editTool == toolScale && !toolScale->isBusy())
+		editTool = nullptr;
 }
 
 

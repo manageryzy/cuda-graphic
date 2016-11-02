@@ -13,7 +13,7 @@ public:
 	virtual void redoHistory(GraphicHistory);
 	virtual void reset();
 	void doMove(void *);
-	inline bool busy() { return state!=0; };
+	inline bool isBusy() { return state!=0; };
 	GRA_TOOL_MSG_MAP_HEAD
 protected:
 	int state = 0;
