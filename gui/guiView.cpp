@@ -112,11 +112,7 @@ END_MESSAGE_MAP()
 
 CguiView::CguiView()
 {
-	/*state = GUI_STATE_NONE;*/
 	selectMode = GUI_SELECT_MODE_OBJECT;
-	/*selectTool = GUI_SELECT_TOOL_POINTER;
-	editTool = GUI_TOOL_NONE;*/
-	//cameraTool = GUI_TOOL_NONE;
 	selectTool = nullptr;
 	editTool = nullptr;
 	cameraTool = nullptr;
@@ -207,9 +203,6 @@ CguiView::~CguiView()
 
 BOOL CguiView::PreCreateWindow(CREATESTRUCT& cs)
 {
-	// TODO: Modify the Window class or styles here by modifying
-	//  the CREATESTRUCT cs
-
 	return CView::PreCreateWindow(cs);
 }
 
@@ -970,6 +963,12 @@ void CguiView::OnRButtonDown(UINT nFlags, CPoint point)
 
 void CguiView::OnMButtonDown(UINT nFlags, CPoint point)
 {
+	if (!cameraTool)
+	{
+		cameraTool = toolCameraPan;
+		toolCameraPan->startMove(&point);
+	}
+
 	if (!dispatchToolMsg(WM_MBUTTONDOWN, &point))
 		CView::OnMButtonDown(nFlags, point);
 }
@@ -977,6 +976,12 @@ void CguiView::OnMButtonDown(UINT nFlags, CPoint point)
 
 void CguiView::OnMButtonUp(UINT nFlags, CPoint point)
 {
+	if (cameraTool == toolCameraPan)
+	{
+		toolCameraPan->endMove();
+		cameraTool = nullptr;
+	}
+
 	if (!dispatchToolMsg(WM_MBUTTONUP, &point))
 		CView::OnMButtonUp(nFlags, point);
 }
