@@ -80,6 +80,7 @@ public:
 	void Serialize(CArchive& ar);
 	void toPolygon();
 	void init(GraphicType type, TCHAR * str);
+	void move(float x, float y,int frame);
 	Graphic();
 	~Graphic();
 };

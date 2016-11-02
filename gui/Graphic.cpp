@@ -122,6 +122,47 @@ void Graphic::init(GraphicType type,TCHAR * str)
 	}
 }
 
+void Graphic::move(float x, float y,int frame)
+{
+	switch (type)
+	{
+	case GRA_NONE:
+		break;
+	case GRA_POLYGON:
+	{
+		for (auto & pt : graphicPolygon->points)
+		{
+			pt.x.setAttrAtFrame(pt.x.atFrame(frame) + x, frame);
+			pt.y.setAttrAtFrame(pt.y.atFrame(frame) + y, frame);
+		}
+	}
+		break;
+	case GRA_CIRCLE:
+	{
+		graphicCircle->x.setAttrAtFrame(graphicCircle->x.atFrame(frame) + x, frame);
+		graphicCircle->y.setAttrAtFrame(graphicCircle->y.atFrame(frame) + y, frame);
+	}
+		break;
+	case GRA_BEZIER:
+	{
+		for (auto & c : graphicBezier->curves)
+		{
+			c.ct1x.setAttrAtFrame(c.ct1x.atFrame(frame) + x, frame);
+			c.ct1y.setAttrAtFrame(c.ct1y.atFrame(frame) + y, frame);
+			c.ct2x.setAttrAtFrame(c.ct2x.atFrame(frame) + x, frame);
+			c.ct2y.setAttrAtFrame(c.ct2y.atFrame(frame) + y, frame);
+			c.pt1.x.setAttrAtFrame(c.pt1.x.atFrame(frame) + x, frame);
+			c.pt1.y.setAttrAtFrame(c.pt1.y.atFrame(frame) + y, frame);
+			c.pt2.x.setAttrAtFrame(c.pt2.x.atFrame(frame) + x, frame);
+			c.pt2.y.setAttrAtFrame(c.pt2.y.atFrame(frame) + y, frame);
+		}
+	}
+		break;
+	default:
+		throw "unknown graphic";
+	}
+}
+
 void GUID_::Serialize(CArchive & ar)
 {
 	if (ar.IsLoading())

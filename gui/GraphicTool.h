@@ -2,6 +2,8 @@
 
 #include "GraphicHistory.h"
 #include <memory>
+#include <map>
+#include <vector>
 
 
 
