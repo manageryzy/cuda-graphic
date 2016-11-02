@@ -209,6 +209,8 @@ public:
 	afx_msg void OnUpdatePan(CCmdUI *pCmdUI);
 	afx_msg BOOL OnMouseWheel(UINT nFlags, short zDelta, CPoint pt);
 	afx_msg void OnEsc();
+	afx_msg void OnPrevFrame();
+	afx_msg void OnNextFrame();
 };
 
 #ifndef _DEBUG  // debug version in guiView.cpp

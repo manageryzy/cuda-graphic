@@ -49,6 +49,7 @@ inline T GraphicAttrTimeline<T>::atFrame(int frame)
 		{
 			frame2 = (*it).first;
 			attr2 = (*it).second;
+			break;
 		}
 	}
 	for (auto it = attr.rbegin(); it != attr.rend(); ++it)
@@ -57,6 +58,7 @@ inline T GraphicAttrTimeline<T>::atFrame(int frame)
 		{
 			frame1 = (*it).first;
 			attr1 = (*it).second;
+			break;
 		}
 	}
 
@@ -71,7 +73,7 @@ inline T GraphicAttrTimeline<T>::atFrame(int frame)
 	if (frame2 == -1)
 		return attr1;
 
-	return ((frame2 - frame)*attr2 + (frame - frame1)*attr1) / (frame2 - frame1);
+	return ((frame2 - frame)*attr1 + (frame - frame1)*attr2) / (frame2 - frame1);
 }
 
 template<typename T>
@@ -83,18 +85,21 @@ inline void GraphicAttrTimeline<T>::setAttrAtFrame(T val, int frame)
 		return;
 	}
 
-	for (auto i = attr.begin(); i != attr.end(); ++i)
+	for (auto i = attr.rbegin(); i != attr.rend(); ++i)
 	{
 		if (frame == i->first)
 		{
 			i->second = val;
+			return;
 		}
 		else if (frame < i->first)
 		{
-			attr.insert(i, std::pair<int, T >(frame, val ));
-			break;
+			attr.insert(i.base(), std::pair<int, T >(frame, val ));
+			return;
 		}
 	}
+
+	attr.push_back(std::pair<int, T >(frame, val));
 }
 
 template<typename T>

@@ -106,6 +106,8 @@ BEGIN_MESSAGE_MAP(CguiView, CView)
 	ON_UPDATE_COMMAND_UI(ID_PAN, &CguiView::OnUpdatePan)
 	ON_WM_MOUSEWHEEL()
 	ON_COMMAND(ID_ESC, &CguiView::OnEsc)
+	ON_COMMAND(ID_PREV_FRAME, &CguiView::OnPrevFrame)
+	ON_COMMAND(ID_NEXT_FRAME, &CguiView::OnNextFrame)
 END_MESSAGE_MAP()
 
 // CguiView construction/destruction
@@ -1108,4 +1110,16 @@ BOOL CguiView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 void CguiView::OnEsc()
 {
 	dispatchToolMsg(ID_ESC, 0);
+}
+
+
+void CguiView::OnPrevFrame()
+{
+	OnFramePrev();
+}
+
+
+void CguiView::OnNextFrame()
+{
+	OnFrameNext();
 }

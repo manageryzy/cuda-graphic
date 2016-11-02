@@ -323,6 +323,8 @@ BEGIN
     VK_F6,          ID_NEXT_PANE,           VIRTKEY, NOINVERT
     VK_F6,          ID_PREV_PANE,           VIRTKEY, SHIFT, NOINVERT
     "A",            ID_SELECT_ALL,          VIRTKEY, CONTROL, NOINVERT
+    ".",            ID_NEXT_FRAME,          ASCII,  NOINVERT
+    ",",            ID_PREV_FRAME,          ASCII,  NOINVERT
 END
 
 
