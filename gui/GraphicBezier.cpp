@@ -13,6 +13,11 @@ GraphicBezier::~GraphicBezier()
 {
 }
 
+void GraphicBezier::init(int frame)
+{
+	fillColor.setAttrAtFrame(0, frame);
+}
+
 
 void GraphicBezier::Serialize(CArchive & ar)
 {
@@ -184,12 +189,12 @@ std::vector<GraphicPoint> GraphicBasicBezier::toPolygon()
 		for (auto f : keyFrame)
 		{
 			pt.x.setAttrAtFrame(pt1.x.atFrame(f) * (1 - t) * (1 - t) * (1 - t) +
-				ct1x.atFrame(f) * (1 - t) *(1 - t) * t +
-				ct2x.atFrame(f) * (1 - t) * t * t +
+				ct1x.atFrame(f) * (1 - t) *(1 - t) * t * 3 +
+				ct2x.atFrame(f) * (1 - t) * t * t * 3 +
 				pt2.x.atFrame(f) * t * t * t,f);
 			pt.y.setAttrAtFrame(pt1.y.atFrame(f) * (1 - t) * (1 - t) * (1 - t) +
-				ct1y.atFrame(f) * (1 - t) *(1 - t) * t +
-				ct2y.atFrame(f) * (1 - t) * t * t +
+				ct1y.atFrame(f) * (1 - t) *(1 - t) * t * 3+
+				ct2y.atFrame(f) * (1 - t) * t * t * 3 +
 				pt2.y.atFrame(f) * t * t * t, f);
 
 			pt.color.setAttrAtFrame(blendColor(pt1.color.atFrame(f), pt2.color.atFrame(f), t), f);
@@ -200,6 +205,7 @@ std::vector<GraphicPoint> GraphicBasicBezier::toPolygon()
 			pt.glowWidth.setAttrAtFrame(pt1.glowWidth.atFrame(f) * t + pt2.glowWidth.atFrame(f) * (1 - t), f);
 			pt.shadowWidth.setAttrAtFrame(pt1.shadowWidth.atFrame(f) * t + pt2.shadowWidth.atFrame(f) * (1 - t), f);
 		}
+		pts.push_back(pt);
 	}
 
 
@@ -215,13 +221,13 @@ std::vector<GraphicBasicPoint> GraphicBasicBezier::atFrame(int frame)
 		GraphicBasicPoint pt;
 		
 		pt.x = pt1.x.atFrame(frame) * (1 - t) * (1 - t) * (1 - t) +
-			ct1x.atFrame(frame) * (1 - t) *(1 - t) * t +
-			ct2x.atFrame(frame) * (1 - t) * t * t +
+			ct1x.atFrame(frame) * (1 - t) *(1 - t) * t * 3 +
+			ct2x.atFrame(frame) * (1 - t) * t * t * 3 +
 			pt2.x.atFrame(frame) * t * t * t;
 
 		pt.y = pt1.y.atFrame(frame) * (1 - t) * (1 - t) * (1 - t) +
-			ct1y.atFrame(frame) * (1 - t) *(1 - t) * t +
-			ct2y.atFrame(frame) * (1 - t) * t * t +
+			ct1y.atFrame(frame) * (1 - t) *(1 - t) * t * 3 +
+			ct2y.atFrame(frame) * (1 - t) * t * t * 3 +
 			pt2.y.atFrame(frame) * t * t * t;
 
 
@@ -233,7 +239,7 @@ std::vector<GraphicBasicPoint> GraphicBasicBezier::atFrame(int frame)
 		pt.glowWidth = pt1.glowWidth.atFrame(frame) * t + pt2.glowWidth.atFrame(frame) * (1 - t);
 		pt.shadowWidth = pt1.shadowWidth.atFrame(frame) * t + pt2.shadowWidth.atFrame(frame) * (1 - t);
 
-		
+		pts.push_back(pt);
 	}
 	return pts;
 }

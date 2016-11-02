@@ -27,5 +27,6 @@ public:
 	std::vector<GraphicBasicPoint> atFrame(int frame);
 	GraphicBezier();
 	~GraphicBezier();
+	void init(int frame);
 };
 

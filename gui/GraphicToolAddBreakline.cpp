@@ -53,7 +53,7 @@ bool GraphicToolAddBreakline::onMouseMove(void * point)
 		view->createing->graphicPolygon->points.back().y.setAttrAtFrame(worldPoint.y, view->frame);
 	}
 
-	return false;
+	return true;
 }
 
 bool GraphicToolAddBreakline::onLDoubleClick(void * point)

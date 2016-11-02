@@ -47,7 +47,7 @@ bool GraphicToolAddCircle::onLButtonDown(void * point)
 		throw "unknown state";
 	}
 
-	return false;
+	return true;
 }
 
 bool GraphicToolAddCircle::onMouseMove(void * point)
@@ -63,7 +63,7 @@ bool GraphicToolAddCircle::onMouseMove(void * point)
 		view->createing->graphicCircle->r.setAttrAtFrame(r, view->frame);
 	}
 
-	return false;
+	return true;
 }
 
 bool GraphicToolAddCircle::onRButtonUp(void *)

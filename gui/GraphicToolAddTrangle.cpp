@@ -70,7 +70,7 @@ bool GraphicToolAddTrangle::onMouseMove(void * point)
 		view->createing->graphicPolygon->points[2].x.setAttrAtFrame(worldPoint.x, view->frame);
 		view->createing->graphicPolygon->points[2].y.setAttrAtFrame(worldPoint.y, view->frame);
 	}
-	return false;
+	return true;
 }
 
 bool GraphicToolAddTrangle::onRButtonUp(void *)
