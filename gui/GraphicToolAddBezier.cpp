@@ -160,13 +160,25 @@ bool GraphicToolAddBezier::onLDoubleClick(void * point)
 
 bool GraphicToolAddBezier::onRButtonUp(void *)
 {
-
+	if (state == STATE_PT2)
+	{
+		if (view->createing->graphicBezier->curves.size() >= 2)
+		{
+			view->createing->graphicBezier->curves.pop_back();
+			return true;
+		}
+		else
+		{
+			cancel();
+			return true;
+		}
+	}
 	return false;
 }
 
 bool GraphicToolAddBezier::onESC(void *)
 {
-	if (state == STATE_PT1 || state == STATE_PT2)
+	if (state == STATE_PT1 || state == STATE_PT2 || state == STATE_PT3)
 	{
 		cancel();
 		return true;

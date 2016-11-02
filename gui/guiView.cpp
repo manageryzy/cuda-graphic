@@ -224,9 +224,9 @@ void CguiView::endCreating()
 		pDoc->grphics[createing->guid] = std::auto_ptr<Graphic>(createing);
 		pDoc->layer.push_back(createing->guid);
 		selectedGraphic.push_back(createing->guid);
-		createing = nullptr;
-		editTool = nullptr;
 	}
+	createing = nullptr;
+	editTool = nullptr;
 
 	CMainFrame * frame = (CMainFrame *)AfxGetMainWnd();
 	frame->m_wndSceneView.FillClassView(pDoc);
@@ -815,6 +815,7 @@ void CguiView::OnUpdateFramePrev(CCmdUI *pCmdUI)
 
 void CguiView::OnUpdateBtnAddWacom(CCmdUI *pCmdUI)
 {
+	pCmdUI->Enable(editTool == nullptr);
 	pCmdUI->SetRadio(editTool == toolAddWacom);
 }
 
