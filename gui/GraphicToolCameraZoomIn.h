@@ -9,6 +9,7 @@ public:
 	virtual void recoverHistory(GraphicHistory);
 	virtual void redoHistory(GraphicHistory);
 	virtual void reset();
+	void zoomIn();
 	GRA_TOOL_MSG_MAP_HEAD
 };
 

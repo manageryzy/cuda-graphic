@@ -599,25 +599,13 @@ void CguiView::OnBtnChooseCamera()
 
 void CguiView::OnBtnZoomIn()
 {
-	/*CguiDoc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-
-	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
-	GraphicCamera * camera = pDoc->cameras[pDoc->currentCamera].get();
-
-	camera->scale = camera->scale * 2.0f;*/
+	toolCameraZoomIn->zoomIn();
 }
 
 
 void CguiView::OnBtnZoomOut()
 {
-	//CguiDoc* pDoc = GetDocument();
-	//ASSERT_VALID(pDoc);
-
-	//ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
-	//GraphicCamera * camera = pDoc->cameras[pDoc->currentCamera].get();
-
-	//camera->scale = camera->scale * 0.5f;
+	toolCameraZoomOut->zoomOut();
 }
 
 
@@ -1081,6 +1069,15 @@ void CguiView::OnSelectAll()
 
 BOOL CguiView::OnMouseWheel(UINT nFlags, short zDelta, CPoint pt)
 {
+	if (zDelta > 0)
+	{
+		toolCameraZoomIn->zoomIn();
+	}
+	if (zDelta < 0)
+	{
+		toolCameraZoomOut->zoomOut();
+	}
+
 	if (!dispatchToolMsg(WM_MOUSEWHEEL, &zDelta))
 	{
 		return CView::OnMouseWheel(nFlags, zDelta, pt);

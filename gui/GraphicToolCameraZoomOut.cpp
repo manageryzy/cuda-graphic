@@ -25,5 +25,11 @@ void GraphicToolCameraZoomOut::reset()
 {
 }
 
+void GraphicToolCameraZoomOut::zoomOut()
+{
+	GRA_INIT_DOC;
+	camera->scale /= 2;
+}
+
 GRA_TOOL_MSG_MAP_START(GraphicToolCameraZoomOut)
 GRA_TOOL_MSG_MAP_END
