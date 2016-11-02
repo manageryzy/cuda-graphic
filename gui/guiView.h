@@ -98,7 +98,7 @@ public:
 	std::vector<GUID_> selectedGraphic;
 	std::vector<GraphicPoint *> selectedPoint;
 
-	void endCreating();
+	void endCreating(bool end = true);
 
 	// mouse record
 	//CPoint lastPointerPos;

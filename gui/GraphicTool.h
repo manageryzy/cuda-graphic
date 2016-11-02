@@ -24,13 +24,21 @@ GraphicCamera * camera = pDoc->cameras[pDoc->currentCamera].get();
 
 #define GRA_INIT_CAMERA \
 CPoint * pt = (CPoint*)point;\
-auto worldPoint = camera->toWorld(pt->x, pt->y);
+auto worldPoint = camera->toWorld((float)pt->x, (float)pt->y);
 
 typedef struct GraphicToolMsgMouseStruct{
 	CPoint pt;
 
 	GraphicToolMsgMouseStruct(CPoint p){pt = p;}
 } GraphicToolMsgMouse;
+
+typedef struct GraphicToolMsgTabletStruct {
+	CPoint pt;
+	int button;
+	int press;
+
+	GraphicToolMsgTabletStruct(int x, int y, int button, int press) { pt.x = x; pt.y = y; this->button = button; this->press = press; }
+} GraphicToolMsgTablet;
 
 class CguiView;
 

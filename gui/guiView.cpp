@@ -215,7 +215,7 @@ BOOL CguiView::PreCreateWindow(CREATESTRUCT& cs)
 
 // CguiView drawing
 
-void CguiView::endCreating()
+void CguiView::endCreating(bool end)
 {
 	CguiDoc* pDoc = GetDocument(); 
 	ASSERT_VALID(pDoc);
@@ -226,7 +226,8 @@ void CguiView::endCreating()
 		selectedGraphic.push_back(createing->guid);
 	}
 	createing = nullptr;
-	editTool = nullptr;
+	if(end)
+		editTool = nullptr;
 
 	CMainFrame * frame = (CMainFrame *)AfxGetMainWnd();
 	frame->m_wndSceneView.FillClassView(pDoc);
@@ -478,6 +479,13 @@ void CguiView::OnBtnAddLine()
 {
 	if (editTool == nullptr)
 		editTool = toolAddLine;
+	else if (editTool == toolAddLine)
+	{
+		if (createing) delete createing;
+		createing = nullptr;
+		editTool = nullptr;
+		toolAddLine->reset();
+	}
 }
 
 
@@ -485,6 +493,13 @@ void CguiView::OnBtnAddBreakLine()
 {
 	if (editTool == nullptr)
 		editTool = toolAddBreakline;
+	else if (editTool == toolAddBreakline)
+	{
+		if (createing) delete createing;
+		createing = nullptr;
+		editTool = nullptr;
+		toolAddBreakline->reset();
+	}
 }
 
 
@@ -492,6 +507,13 @@ void CguiView::OnBtnAddTriangle()
 {
 	if (editTool == nullptr)
 		editTool = toolAddTrangle;
+	else if (editTool == toolAddTrangle)
+	{
+		if (createing) delete createing;
+		createing = nullptr;
+		editTool = nullptr;
+		toolAddTrangle->reset();
+	}
 }
 
 
@@ -499,6 +521,13 @@ void CguiView::OnBtnAddRectangle()
 {
 	if (editTool == nullptr)
 		editTool = toolAddRect;
+	else if (editTool == toolAddRect)
+	{
+		if (createing) delete createing;
+		createing = nullptr;
+		editTool = nullptr;
+		toolAddRect->reset();
+	}
 }
 
 
@@ -506,6 +535,13 @@ void CguiView::OnBtnAddCircle()
 {
 	if (editTool == nullptr)
 		editTool = toolAddCircle;
+	else if (editTool == toolAddCircle)
+	{
+		if (createing) delete createing;
+		createing = nullptr;
+		editTool = nullptr;
+		toolAddCircle->reset();
+	}
 }
 
 
@@ -513,6 +549,13 @@ void CguiView::OnBtnAddBezier()
 {
 	if (editTool == nullptr)
 		editTool = toolAddBezier;
+	else if (editTool == toolAddBezier)
+	{
+		if (createing) delete createing;
+		createing = nullptr;
+		editTool = nullptr;
+		toolAddBezier->reset();
+	}
 }
 
 
@@ -539,7 +582,7 @@ void CguiView::OnBtnScale()
 void CguiView::OnBtnRotate()
 {
 	if (editTool == nullptr)
-		editTool = toolRotate;;
+		editTool = toolRotate;
 }
 
 
@@ -657,6 +700,13 @@ void CguiView::OnBtnAddWacom()
 {
 	if (editTool == nullptr)
 		editTool = toolAddWacom;
+	else if (editTool == toolAddWacom)
+	{
+		if(createing)delete createing;
+		createing = nullptr;
+		editTool = nullptr;
+	}
+		
 }
 
 
@@ -688,63 +738,63 @@ void CguiView::OnUpdateBtnSelRect(CCmdUI *pCmdUI)
 void CguiView::OnUpdateBtnAddLine(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetRadio(editTool == toolAddLine);
-	pCmdUI->Enable(editTool == nullptr);
+	pCmdUI->Enable(editTool == nullptr || editTool == toolAddLine);
 }
 
 
 void CguiView::OnUpdateBtnAddBreakLine(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetRadio(editTool == toolAddBreakline);
-	pCmdUI->Enable(editTool == nullptr);
+	pCmdUI->Enable(editTool == nullptr || editTool == toolAddBreakline);
 }
 
 
 void CguiView::OnUpdateBtnAddTriangle(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetRadio(editTool == toolAddTrangle);
-	pCmdUI->Enable(editTool == nullptr);
+	pCmdUI->Enable(editTool == nullptr || editTool == toolAddTrangle);
 }
 
 
 void CguiView::OnUpdateBtnAddRectangle(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetRadio(editTool == toolAddRect);
-	pCmdUI->Enable(editTool == nullptr);
+	pCmdUI->Enable(editTool == nullptr || editTool == toolAddRect);
 }
 
 
 void CguiView::OnUpdateBtnAddCircle(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetRadio(editTool == toolAddCircle);
-	pCmdUI->Enable(editTool == nullptr);
+	pCmdUI->Enable(editTool == nullptr || editTool == toolAddCircle);
 }
 
 
 void CguiView::OnUpdateBtnAddBezier(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetRadio(editTool == toolAddBezier);
-	pCmdUI->Enable(editTool == nullptr);
+	pCmdUI->Enable(editTool == nullptr || editTool == toolAddBezier);
 }
 
 
 void CguiView::OnUpdateBtnMove(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetRadio(editTool == toolMove);
-	pCmdUI->Enable(editTool == nullptr);
+	pCmdUI->Enable(editTool == nullptr || editTool == toolMove);
 }
 
 
 void CguiView::OnUpdateBtnScale(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetRadio(editTool == toolScale);
-	pCmdUI->Enable(editTool == nullptr);
+	pCmdUI->Enable(editTool == nullptr || editTool == toolScale);
 }
 
 
 void CguiView::OnUpdateBtnRotate(CCmdUI *pCmdUI)
 {
 	pCmdUI->SetRadio(editTool == toolRotate);
-	pCmdUI->Enable(editTool == nullptr);
+	pCmdUI->Enable(editTool == nullptr || editTool == toolRotate);
 }
 
 
@@ -815,7 +865,7 @@ void CguiView::OnUpdateFramePrev(CCmdUI *pCmdUI)
 
 void CguiView::OnUpdateBtnAddWacom(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(editTool == nullptr);
+	pCmdUI->Enable(editTool == nullptr || editTool == toolAddWacom);
 	pCmdUI->SetRadio(editTool == toolAddWacom);
 }
 
@@ -986,59 +1036,9 @@ afx_msg LRESULT CguiView::OnWtPacket(WPARAM wSerial, LPARAM hCtx)
 
 	SetCursorPos(absX, absY);
 
-	/*if (editTool == GUI_TOOL_ADD_WACOM)
+	if (editTool == toolAddWacom)
 	{
-		auto pDoc = GetDocument();
-		if (pDoc == nullptr)
-			return 0;
-
-		if (selectedGraphic.size() > 1)
-		{
-			selectedGraphic.clear();
-		}
-		else if (selectedGraphic.size() == 1)
-		{
-			auto g = pDoc->grphics[selectedGraphic[0]].get();
-			if (g->type != GRA_POLYGON)
-			{
-				selectedGraphic.clear();
-				return 0;
-			}
-
-			if (!pkt.pkButtons && g->graphicPolygon->points.size()>1)
-			{
-				selectedGraphic.clear();
-				return 0;
-			}
-
-			if (pkt.pkButtons)
-			{
-				ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
-				GraphicCamera * camera = pDoc->cameras[pDoc->currentCamera].get();
-
-				auto pts = g->graphicPolygon.get();
-
-				GraphicPoint pt;
-				auto pos = camera->toWorld(x, y);
-				pt.init();
-				pt.x.setAttrAtFrame(pos.x, frame);
-				pt.y.setAttrAtFrame(pos.y, frame);
-				pt.width.setAttrAtFrame(pkt.pkNormalPressure/64, frame);
-
-				pts->points.push_back(pt);
-			}
-		}
-		else if (selectedGraphic.size() == 0)
-		{
-			Graphic * g = new Graphic;
-			g->init();
-			g->graphicPolygon = std::auto_ptr<GraphicPolygon>(new GraphicPolygon);
-			g->type = GRA_POLYGON;
-			pDoc->grphics[g->guid] = std::auto_ptr<Graphic>(g);
-			selectedGraphic.push_back(g->guid);
-			pDoc->layer.push_back(g->guid);
-		}
-		
+		toolAddWacom->on(WT_PACKET, new GraphicToolMsgTablet(x, y, pkt.pkButtons, pkt.pkNormalPressure));
 	}
 	else if(pkt.pkButtons!=oldPenDown)
 	{
@@ -1051,7 +1051,7 @@ afx_msg LRESULT CguiView::OnWtPacket(WPARAM wSerial, LPARAM hCtx)
 			mouse_event(MOUSEEVENTF_LEFTUP, absX, absY, 0, 0);
 		}
 		oldPenDown = pkt.pkButtons;
-	}*/
+	}
 	
 	return 0;
 }

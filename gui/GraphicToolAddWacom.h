@@ -6,6 +6,7 @@ class GraphicToolAddWacom :
 public:
 	GraphicToolAddWacom();
 	~GraphicToolAddWacom();
+	bool onWtPacket(void *);
 	virtual void recoverHistory(GraphicHistory);
 	virtual void redoHistory(GraphicHistory);
 	virtual void reset();
