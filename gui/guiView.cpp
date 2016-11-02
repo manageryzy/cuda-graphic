@@ -618,13 +618,22 @@ void CguiView::OnPan()
 
 void CguiView::OnFrameNext()
 {
-	// TODO: Add your command handler code here
+	frame += 1;
+	auto f = (CMainFrame *)GetTopLevelFrame();
+	CString out;
+	out.Format(L"%s - frame: %d", title, frame);
+	f->SetWindowTextW(out);
 }
 
 
 void CguiView::OnFramePrev()
 {
-	// TODO: Add your command handler code here
+	if (frame > 0)
+		frame -= 1;
+	auto f = (CMainFrame *)GetTopLevelFrame();
+	CString out;
+	out.Format(L"%s - frame: %d", title, frame);
+	f->SetWindowTextW(out);
 }
 
 
@@ -882,8 +891,14 @@ afx_msg LRESULT CguiView::OnViewReset(WPARAM wParam, LPARAM lParam)
 	createing = nullptr;
 
 	auto pDoc = GetDocument();
-	CMainFrame * frame = (CMainFrame *)AfxGetMainWnd();
-	frame->m_wndSceneView.FillClassView(pDoc);
+	CMainFrame * f = (CMainFrame *)AfxGetMainWnd();
+	f->m_wndSceneView.FillClassView(pDoc);
+
+	
+	title = f->GetTitle();
+	CString out;
+	out.Format(L"%s - frame: %ld", title, frame);
+	f->SetWindowTextW(out);
 
 	return 0;
 }

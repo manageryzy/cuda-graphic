@@ -99,7 +99,7 @@ DWORD GraphicColorTimeLine::atFrame(int frame)
 			attr2 = (*it).second;
 		}
 	}
-	for (auto it = attr.end()-1; it != attr.begin(); --it)
+	for (auto it = attr.rbegin(); it != attr.rend(); ++it)
 	{
 		if (frame >(*it).first)
 		{

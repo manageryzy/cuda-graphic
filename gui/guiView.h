@@ -112,6 +112,7 @@ private:
 	CMutex *pWTMutex;
 	bool oldPenDown = false;
 	bool inline dispatchToolMsg(int msg, void * param);
+	CString title;
 // Operations
 public:
 
