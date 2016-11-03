@@ -163,6 +163,50 @@ void Graphic::move(float x, float y,int frame)
 	}
 }
 
+std::vector<GraphicBasicPoint> Graphic::atFrame(int frame)
+{
+	switch (type)
+	{
+	case GRA_POLYGON:
+		return graphicPolygon->atFrame(frame);
+		break;
+	case GRA_CIRCLE:
+		return graphicCircle->atFrame(frame);
+		break;
+	case GRA_BEZIER:
+		return graphicBezier->atFrame(frame);
+		break;
+	case GRA_NONE:
+		break;
+	default:
+		throw "unknown graphic";
+	}
+
+	return std::vector<GraphicBasicPoint>();
+}
+
+int Graphic::pointCount()
+{
+	switch (type)
+	{
+	case GRA_POLYGON:
+		return graphicPolygon->points.size();
+		break;
+	case GRA_CIRCLE:
+		return GRAPHIC_SETTING_CIRCLE_EDGES;
+		break;
+	case GRA_BEZIER:
+		return GRAPHIC_SETTING_BEZIER_EDGES;
+		break;
+	case GRA_NONE:
+		break;
+	default:
+		throw "unknown graphic";
+	}
+
+	return 0;
+}
+
 void GUID_::Serialize(CArchive & ar)
 {
 	if (ar.IsLoading())

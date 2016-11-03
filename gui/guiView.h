@@ -44,6 +44,7 @@
 //#define GUI_TOOL_CAMERA_PAN 11
 
 #include <chrono>
+#include <set>
 #include "WINTAB.H"
 #define PACKETDATA	PK_X | PK_Y | PK_CURSOR | PK_BUTTONS | PK_NORMAL_PRESSURE
 #define PACKETMODE	1
@@ -51,6 +52,7 @@
 #include "TabletUtils.h"
 
 #include "GraphicToolAll.h"
+#include "../cuda-graphic/CUDARender.hpp"
 
 class CguiView : public CView
 {
@@ -79,24 +81,25 @@ public:
 	GraphicTool * selectTool = nullptr;
 	GraphicTool * editTool = nullptr;
 	GraphicTool * cameraTool = nullptr;
-	GraphicToolAddBezier * toolAddBezier;
-	GraphicToolAddBreakline * toolAddBreakline;
-	GraphicToolAddCircle * toolAddCircle;
-	GraphicToolAddLine * toolAddLine;
-	GraphicToolAddRect * toolAddRect;
-	GraphicToolAddTrangle * toolAddTrangle;
-	GraphicToolAddWacom * toolAddWacom;
-	GraphicToolCameraPan * toolCameraPan;
-	GraphicToolCameraZoomIn * toolCameraZoomIn;
-	GraphicToolCameraZoomOut * toolCameraZoomOut;
-	GraphicToolMove * toolMove;
-	GraphicToolRotate * toolRotate;
-	GraphicToolScale * toolScale;
-	GraphicToolSelecRect * toolSelectRect;
-	GraphicToolSelectPointer * toolSelectPointer;
+	GraphicToolAddBezier * toolAddBezier = nullptr;
+	GraphicToolAddBreakline * toolAddBreakline = nullptr;
+	GraphicToolAddCircle * toolAddCircle = nullptr;
+	GraphicToolAddLine * toolAddLine = nullptr;
+	GraphicToolAddRect * toolAddRect = nullptr;
+	GraphicToolAddTrangle * toolAddTrangle = nullptr;
+	GraphicToolAddWacom * toolAddWacom = nullptr;
+	GraphicToolCameraPan * toolCameraPan = nullptr;
+	GraphicToolCameraZoomIn * toolCameraZoomIn = nullptr;
+	GraphicToolCameraZoomOut * toolCameraZoomOut = nullptr;
+	GraphicToolMove * toolMove = nullptr;
+	GraphicToolRotate * toolRotate = nullptr;
+	GraphicToolScale * toolScale = nullptr;
+	GraphicToolSelecRect * toolSelectRect = nullptr;
+	GraphicToolSelectPointer * toolSelectPointer = nullptr;
+	CUDARender * cudaRender = nullptr;
 
-	std::vector<GUID_> selectedGraphic;
-	std::vector<GraphicPoint *> selectedPoint;
+	std::set<GUID_> selectedGraphic;
+	std::set<GraphicPoint *> selectedPoint;
 
 	void endCreating(bool end = true);
 

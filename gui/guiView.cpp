@@ -30,6 +30,8 @@ char * gpszProgramName = "CUDAX";
 #include <d2d1.h>
 #include <d3d11_1.h>
 
+#include <exception>  
+
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -150,6 +152,19 @@ CguiView::CguiView()
 	toolScale->bind(this);
 	toolSelectRect->bind(this);
 	toolSelectPointer->bind(this);
+
+	try 
+	{
+		cudaRender = CUDARender::getCudaRender();
+	}
+	catch (std::exception& e)
+	{
+		::MessageBox(0,CString(e.what()),L"error",MB_ICONERROR);
+		exit(-1);
+	}
+
+		
+
 	
 	createing = nullptr;
 
@@ -218,7 +233,7 @@ void CguiView::endCreating(bool end)
 	{
 		pDoc->grphics[createing->guid] = std::auto_ptr<Graphic>(createing);
 		pDoc->layer.push_back(createing->guid);
-		selectedGraphic.push_back(createing->guid);
+		selectedGraphic.insert(createing->guid);
 	}
 	createing = nullptr;
 	if(end)
@@ -383,6 +398,8 @@ void CguiView::OnDraw(CDC* /*pDC*/)
 	ASSERT(pDoc != nullptr);
 	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
 	GraphicCamera * camera = pDoc->cameras[pDoc->currentCamera].get();
+
+	cudaRender->renderScene(0, 1024, 1024, frame, 0, 0, 1, 1, pDoc, &selectedGraphic);
 	
 	pRT->BeginDraw();
 	pRT->Clear();
@@ -813,7 +830,7 @@ void CguiView::OnUpdateBtnToPolygon(CCmdUI *pCmdUI)
 	{
 		try 
 		{
-			if (GetDocument()->grphics[selectedGraphic.at(0)]->type != GRA_POLYGON)
+			if (GetDocument()->grphics[*selectedGraphic.begin()]->type != GRA_POLYGON)
 			{
 				pCmdUI->Enable(1);
 			}
@@ -1080,7 +1097,7 @@ void CguiView::OnSelectAll()
 		selectedGraphic.clear();
 		for (auto & guid : pDoc->layer)
 		{
-			selectedGraphic.push_back(guid);
+			selectedGraphic.insert(guid);
 		}
 	}
 }

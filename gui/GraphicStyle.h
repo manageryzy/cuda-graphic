@@ -7,12 +7,12 @@ typedef struct GraphicBasicPoint_
 public:
 	float x;
 	float y;
-	DWORD color;
 	float width;
-	DWORD glowColor;
 	float glowWidth;
-	DWORD shadowColor;
 	float shadowWidth;
+	DWORD color;
+	DWORD glowColor;
+	DWORD shadowColor;
 } GraphicBasicPoint;
 
 template<typename T>

@@ -81,6 +81,8 @@ public:
 	void toPolygon();
 	void init(GraphicType type, TCHAR * str);
 	void move(float x, float y,int frame);
+	std::vector<GraphicBasicPoint> atFrame(int frame);
+	int pointCount();
 	Graphic();
 	~Graphic();
 };
