@@ -40,6 +40,9 @@
     <Filter Include="Header Files\view\tool">
       <UniqueIdentifier>{108c7a7f-7c43-47f5-9317-2b0ee32c9bda}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\misc">
+      <UniqueIdentifier>{4a243426-12f0-43aa-9ebb-9707e9170fb8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -152,6 +155,9 @@
     </ClInclude>
     <ClInclude Include="GraphicToolSelectPointer.h">
       <Filter>Header Files\view\tool</Filter>
+    </ClInclude>
+    <ClInclude Include="SelectSet.h">
+      <Filter>Header Files\misc</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

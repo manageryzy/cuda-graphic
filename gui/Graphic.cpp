@@ -196,7 +196,7 @@ int Graphic::pointCount()
 		return GRAPHIC_SETTING_CIRCLE_EDGES;
 		break;
 	case GRA_BEZIER:
-		return GRAPHIC_SETTING_BEZIER_EDGES;
+		return GRAPHIC_SETTING_BEZIER_EDGES * graphicBezier->curves.size();
 		break;
 	case GRA_NONE:
 		break;

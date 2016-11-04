@@ -37,6 +37,26 @@ public:
 __global__ void transformKernel(
 	CUDARenderSetting * setting_dev,
 	GraphicBasicPoint * points_dev
+);
+
+__global__ void renderKernel(
+	CUDARenderSetting * setting_dev,
+	GraphicBasicPoint * points_dev,
+	DWORD * fillColor_dev,
+	int * startPos_dev,
+	DWORD * res_dev
+);
+
+DWORD inline __device__  blendColor(DWORD color1, DWORD color2);
+DWORD inline __device__  gradientColor(DWORD color1, DWORD color2, float s);
+float inline __device__  gradientFloat(float x, float y, float s);
+float inline __device__  pointToSegDist(float x, float y, float x1, float y1, float x2, float y2);
+
+
+
+__global__ void transformKernel(
+	CUDARenderSetting * setting_dev,
+	GraphicBasicPoint * points_dev
 )
 {
 	float x = setting_dev->camX;
@@ -46,7 +66,7 @@ __global__ void transformKernel(
 
 	points_dev[blockIdx.x].x -= x;
 	points_dev[blockIdx.x].y -= y;
-	points_dev[blockIdx.x].x *+ scaleX;
+	points_dev[blockIdx.x].x *= scaleX;
 	points_dev[blockIdx.x].y *= scaleY;
 }
 
@@ -58,7 +78,116 @@ __global__ void renderKernel(
 	DWORD * res_dev
 )
 {
+	DWORD color = 0;
 
+	float x = blockIdx.x;
+	float y = blockIdx.y;
+
+	for (int i = 0; i < setting_dev->graphicCount; i++)
+	{
+		for (int j = startPos_dev[i]; j < startPos_dev[i + 1] - 1; j++)
+		{
+			float x1 = points_dev[j].x;
+			float y1 = points_dev[j].y;
+			float x2 = points_dev[j + 1].x;
+			float y2 = points_dev[j + 1].y;
+
+			float distToSeg;
+			float r;
+			{
+				float cross = (x2 - x1) * (x - x1) + (y2 - y1) * (y - y1);
+				float d2 = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+				r = cross / d2;
+				
+				if (cross <= 0)
+				{
+					distToSeg = sqrtf((x - x1) * (x - x1) + (y - y1) * (y - y1));
+				}
+				else if (cross >= d2)
+				{
+					distToSeg = sqrtf((x - x2) * (x - x2) + (y - y2) * (y - y2));
+
+				}
+				else
+				{
+					float px = x1 + (x2 - x1) * r;
+					float py = y1 + (y2 - y1) * r;
+					distToSeg = sqrtf((x - px) * (x - px) + (y - py) * (y - py));
+				}
+			}
+
+			float point_width = gradientFloat(points_dev[j].width, points_dev[j + 1].width,r)*setting_dev->scaleX/2;
+
+			if (distToSeg <= point_width  )
+			{
+				DWORD point_color = gradientColor(points_dev[j].color, points_dev[j + 1].color, r);
+				color = blendColor(point_color, color);
+			}
+			
+		}
+	}
+	
+	res_dev[blockIdx.y * setting_dev->sizeX + blockIdx.x] = color;
+	
+	//res_dev[blockIdx.y * setting_dev->sizeX + blockIdx.x] = (a << 24)| (b << 16) |(g << 8) |r;
+}
+
+DWORD inline __device__  blendColor(DWORD color1,DWORD color2)
+{
+	unsigned char r1 = color1 & 0xFF;
+	unsigned char g1 = (color1 >> 8) & 0xFF;
+	unsigned char b1 = (color1 >> 16) & 0xFF;
+	unsigned char a1 = (color1 >> 24) & 0xFF;
+	unsigned char r2 = color2 & 0xFF;
+	unsigned char g2 = (color2 >> 8) & 0xFF;
+	unsigned char b2 = (color2 >> 16) & 0xFF;
+	unsigned char a2 = (color2 >> 24) & 0xFF;
+
+	unsigned char r = (r1*a1 + r2*a2) / (a1 + a2);
+	unsigned char g = (g1*a1 + g2*a2) / (a1 + a2);
+	unsigned char b = (b1*a1 + b2*a2) / (a1 + a2);
+
+	return (0xFF << 24) | (b << 16) | (g << 8) | r;
+}
+
+DWORD inline __device__  gradientColor(DWORD color1, DWORD color2, float s)
+{
+	float s_ = 1 - s;
+	int r1 = color1 & 0xFF;
+	int g1 = (color1 >> 8) & 0xFF;
+	int b1 = (color1 >> 16) & 0xFF;
+	int a1 = (color1 >> 24) & 0xFF;
+	int r2 = color2 & 0xFF;
+	int g2 = (color2 >> 8) & 0xFF;
+	int b2 = (color2 >> 16) & 0xFF;
+	int a2 = (color2 >> 24) & 0xFF;
+
+	unsigned char r = (r1*s + r2*s_);
+	unsigned char g = (g1*s + g2*s_);
+	unsigned char b = (b1*s + b2*s_);
+	unsigned char a = (a1*s + a2*s_);
+
+	return (a << 24) | (b << 16) | (g << 8) | r;
+}
+
+float inline __device__  pointToSegDist(float x, float y, float x1, float y1, float x2, float y2)
+{
+	float cross = (x2 - x1) * (x - x1) + (y2 - y1) * (y - y1);
+	if (cross <= 0) return sqrtf((x - x1) * (x - x1) + (y - y1) * (y - y1));
+
+	float d2 = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
+	if (cross >= d2) return sqrtf((x - x2) * (x - x2) + (y - y2) * (y - y2));
+
+	float r = cross / d2;
+	float px = x1 + (x2 - x1) * r;
+	float py = y1 + (y2 - y1) * r;
+
+	return sqrtf((x - px) * (x - px) + (y - py) * (y - py));
+}
+
+float inline __device__  gradientFloat(float x, float y, float s)
+{
+	return x*s + y*(1 - s);
 }
 
 
@@ -141,30 +270,39 @@ bool CUDARenderCore::render(DWORD * output,
 		return false;
 	}
 
-	cudaStatus = cudaMemcpy(points_dev, points, pointCount * sizeof(GraphicBasicPoint), cudaMemcpyHostToDevice);
+	cudaStatus = cudaMemcpy(points_dev, points, (pointCount+16) * sizeof(GraphicBasicPoint), cudaMemcpyHostToDevice);
 	if (cudaStatus != cudaSuccess) {
 		fprintf(stderr, "cudaMemcpy failed!");
 		return false;
 	}
 
-	cudaStatus = cudaMemcpy(fillColor_dev, fillColor, graphicCount * sizeof(DWORD), cudaMemcpyHostToDevice);
+	cudaStatus = cudaMemcpy(fillColor_dev, fillColor, (graphicCount+16) * sizeof(DWORD), cudaMemcpyHostToDevice);
 	if (cudaStatus != cudaSuccess) {
 		fprintf(stderr, "cudaMemcpy failed!");
 		return false;
 	}
 
 
-	cudaStatus = cudaMemcpy(startPos_dev, startPos, graphicCount * sizeof(int), cudaMemcpyHostToDevice);
+	cudaStatus = cudaMemcpy(startPos_dev, startPos, (graphicCount+16) * sizeof(int), cudaMemcpyHostToDevice);
 	if (cudaStatus != cudaSuccess) {
 		fprintf(stderr, "cudaMemcpy failed!");
 		return false;
 	}
 
-	transformKernel <<<graphicCount, 1 >>> (setting_dev, points_dev);
-	cudaStatus = cudaGetLastError();
-	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "transform Kernel launch failed: %s\n", cudaGetErrorString(cudaStatus));
-		goto Error;
+	if (graphicCount != 0)
+	{
+		transformKernel <<<pointCount, 1 >>> (setting_dev, points_dev);
+		cudaStatus = cudaGetLastError();
+		if (cudaStatus != cudaSuccess) {
+			fprintf(stderr, "transform Kernel launch failed: %s\n", cudaGetErrorString(cudaStatus));
+			goto Error;
+		}
+
+		cudaStatus = cudaDeviceSynchronize();
+		if (cudaStatus != cudaSuccess) {
+			fprintf(stderr, "cudaDeviceSynchronize returned error code %d after launching addKernel!\n", cudaStatus);
+			goto Error;
+		}
 	}
 
 	dim3 blocks(width, height);

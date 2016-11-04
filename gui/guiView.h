@@ -101,6 +101,8 @@ public:
 	std::set<GUID_> selectedGraphic;
 	std::set<GraphicPoint *> selectedPoint;
 
+	void beginCreating();
+
 	void endCreating(bool end = true);
 
 	// mouse record

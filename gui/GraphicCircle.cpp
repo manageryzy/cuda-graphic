@@ -70,7 +70,7 @@ GraphicPolygon * GraphicCircle::toPolygon()
 	for (auto i = 0; i < GRAPHIC_SETTING_CIRCLE_EDGES; i++)
 	{
 		GraphicPoint pt;
-		float phi = (float)(2 * M_PI) / GRAPHIC_SETTING_CIRCLE_EDGES*i;
+		float phi = (float)(2 * M_PI) / (GRAPHIC_SETTING_CIRCLE_EDGES - 1)*i;
 		pt.color = this->color;
 		pt.width = this->width;
 		pt.glowColor = this->glowColor;
@@ -93,7 +93,7 @@ std::vector<GraphicBasicPoint> GraphicCircle::atFrame(int frame)
 	for (auto i = 0; i < GRAPHIC_SETTING_CIRCLE_EDGES; i++)
 	{
 		GraphicBasicPoint pt;
-		float phi = (float)(2 * M_PI) / GRAPHIC_SETTING_CIRCLE_EDGES*i;
+		float phi = (float)(2 * M_PI) / (GRAPHIC_SETTING_CIRCLE_EDGES-1)*i;
 		pt.color = this->color.atFrame(frame);
 		pt.width = this->width.atFrame(frame);
 		pt.glowColor = this->glowColor.atFrame(frame);

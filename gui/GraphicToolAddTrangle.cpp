@@ -30,7 +30,7 @@ bool GraphicToolAddTrangle::onLButtonDown(void * point)
 		view->createing->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
 		view->createing->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
 		view->createing->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
-		view->selectedGraphic.clear();
+		view->beginCreating();
 		state = STATE_PT1;
 	}
 	else if (state == STATE_PT1)

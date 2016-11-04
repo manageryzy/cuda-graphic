@@ -225,6 +225,12 @@ BOOL CguiView::PreCreateWindow(CREATESTRUCT& cs)
 
 // CguiView drawing
 
+void CguiView::beginCreating()
+{
+	selectedGraphic.clear();
+	//cudaRender->getCache()->change(frame);
+}
+
 void CguiView::endCreating(bool end)
 {
 	CguiDoc* pDoc = GetDocument(); 
@@ -238,6 +244,8 @@ void CguiView::endCreating(bool end)
 	createing = nullptr;
 	if(end)
 		editTool = nullptr;
+
+	cudaRender->getCache()->change(frame);
 
 	CMainFrame * frame = (CMainFrame *)AfxGetMainWnd();
 	frame->m_wndSceneView.FillClassView(pDoc);
@@ -399,10 +407,34 @@ void CguiView::OnDraw(CDC* /*pDC*/)
 	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
 	GraphicCamera * camera = pDoc->cameras[pDoc->currentCamera].get();
 
-	cudaRender->renderScene(0, 1024, 1024, frame, 0, 0, 1, 1, pDoc, &selectedGraphic);
+
+	int width = rc.right - rc.left;
+	int height = rc.bottom - rc.top;
+
+	DWORD * data = cudaRender->getCache()->getImage(height*2, width *2, frame, camera->x, camera->y, camera->scale * 2, camera->scale * 2, pDoc, &selectedGraphic);
+	
+	ID2D1Bitmap * bitmap = nullptr;
+	D2D1_SIZE_U size;
+	size.height = height*2;
+	size.width = width*2;
+	pRT->CreateBitmap(size, (void *)data, size.width * sizeof(DWORD), D2D1::BitmapProperties(
+		D2D1::PixelFormat(DXGI_FORMAT_R8G8B8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED)
+	), &bitmap);
 	
 	pRT->BeginDraw();
 	pRT->Clear();
+
+	D2D1_RECT_F rect_screen;
+	rect_screen.top = 0;
+	rect_screen.left = 0;
+	rect_screen.bottom = height;
+	rect_screen.right = width;
+	D2D1_RECT_F rect_bmp;
+	rect_bmp.top = 0;
+	rect_bmp.left = 0;
+	rect_bmp.bottom = height*2;
+	rect_bmp.right = width*2;
+	pRT->DrawBitmap(bitmap, rect_screen,1.0f,D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,0);
 	// begin draw
 	
 	if (selectMode == GUI_SELECT_MODE_OBJECT)
@@ -444,6 +476,7 @@ void CguiView::OnDraw(CDC* /*pDC*/)
 	SafeRelease(&pRedBrush);
 	SafeRelease(&pWhiteBrush);
 	SafeRelease(&style);
+	SafeRelease(&bitmap);
 }
 
 void CguiView::OnRButtonUp(UINT /* nFlags */, CPoint point)
@@ -641,6 +674,18 @@ void CguiView::OnPan()
 
 void CguiView::OnFrameNext()
 {
+	if (editTool != nullptr)
+	{
+		if (editTool == toolAddBezier ||
+			editTool == toolAddBreakline ||
+			editTool == toolAddCircle ||
+			editTool == toolAddLine ||
+			editTool == toolAddRect ||
+			editTool == toolAddTrangle ||
+			editTool == toolAddWacom)
+			return;
+	}
+
 	frame += 1;
 	auto f = (CMainFrame *)GetTopLevelFrame();
 	CString out;
@@ -651,6 +696,18 @@ void CguiView::OnFrameNext()
 
 void CguiView::OnFramePrev()
 {
+	if (editTool != nullptr)
+	{
+		if (editTool == toolAddBezier ||
+			editTool == toolAddBreakline ||
+			editTool == toolAddCircle ||
+			editTool == toolAddLine ||
+			editTool == toolAddRect ||
+			editTool == toolAddTrangle ||
+			editTool == toolAddWacom)
+			return;
+	}
+
 	if (frame > 0)
 		frame -= 1;
 	auto f = (CMainFrame *)GetTopLevelFrame();
@@ -1099,6 +1156,7 @@ void CguiView::OnSelectAll()
 		{
 			selectedGraphic.insert(guid);
 		}
+		cudaRender->getCache()->change(frame);
 	}
 }
 

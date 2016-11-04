@@ -28,7 +28,7 @@ bool GraphicToolAddCircle::onLButtonDown(void * point)
 		view->createing->graphicCircle->init();
 		view->createing->graphicCircle->x.setAttrAtFrame(worldPoint.x, view->frame);
 		view->createing->graphicCircle->y.setAttrAtFrame(worldPoint.y, view->frame);
-		view->selectedGraphic.clear();
+		view->beginCreating();
 		state = STATE_PT1;
 	}
 	else if (state == STATE_PT1)

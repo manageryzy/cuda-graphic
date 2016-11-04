@@ -32,7 +32,7 @@ bool GraphicToolAddWacom::onWtPacket(void * stru)
 			view->createing = new Graphic();
 			view->createing->init(GRA_POLYGON, L"new ink");
 			view->createing->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y, 0xFFFFFFFF, msg->press / 128.0f);
-			view->selectedGraphic.clear();
+			view->beginCreating();
 		}
 	}
 	else

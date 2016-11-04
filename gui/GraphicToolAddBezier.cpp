@@ -43,7 +43,7 @@ bool GraphicToolAddBezier::onLButtonDown(void * point)
 		bezier.ct2y.setAttrAtFrame(worldPoint.y, view->frame);
 		view->createing->graphicBezier->curves.push_back(bezier);
 
-		view->selectedGraphic.clear();
+		view->beginCreating();
 		state = STATE_PT1;
 	}
 	else if (state == STATE_PT2)
