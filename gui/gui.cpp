@@ -69,23 +69,14 @@ CguiApp theApp;
 BOOL CguiApp::InitInstance()
 {
 	//init wacom support
-	if (!LoadWintab())
+	tabletOk = LoadWintab();
+	if (!tabletOk)
 	{
 		ShowError("Wintab not available");
-		return FALSE;
 	}
 
 	/* check if WinTab available. */
-	UINT tab = 0;
-	try
-	{
-		tab = gpWTInfoA(0, 0, NULL);
-	}
-	catch (...)
-	{
-		tab = 0;
-	}
-	if (!tab) {
+	if (tabletOk && !gpWTInfoA(0, 0, NULL)) {
 		MessageBox(NULL, L"WinTab Services Not Available.", L"Error",
 			MB_OK | MB_ICONHAND);
 		try
@@ -99,10 +90,7 @@ BOOL CguiApp::InitInstance()
 		
 		tabletOk = false;
 	}
-	else
-	{
-		tabletOk = true;
-	}
+	
 
 
 

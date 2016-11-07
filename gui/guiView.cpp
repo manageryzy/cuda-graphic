@@ -1085,14 +1085,19 @@ int CguiView::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	// Open a Wintab context
 
 	// Get default context information
-	gpWTInfoA(WTI_DEFCONTEXT, 0, &lc);
 
-	// Open the context
-	lc.lcPktData = PACKETDATA;
-	lc.lcPktMode = PACKETMODE;
-	lc.lcOptions = CXO_MESSAGES;
-	lc.lcSysMode = 1;
-	hCtx = gpWTOpenA(m_hWnd, &lc, TRUE);
+	if (theApp.tabletOk)
+	{
+		gpWTInfoA(WTI_DEFCONTEXT, 0, &lc);
+
+		// Open the context
+		lc.lcPktData = PACKETDATA;
+		lc.lcPktMode = PACKETMODE;
+		lc.lcOptions = CXO_MESSAGES;
+		lc.lcSysMode = 1;
+		hCtx = gpWTOpenA(m_hWnd, &lc, TRUE);
+	}
+
 	return 0;
 }
 
