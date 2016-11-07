@@ -76,11 +76,32 @@ BOOL CguiApp::InitInstance()
 	}
 
 	/* check if WinTab available. */
-	if (!gpWTInfoA(0, 0, NULL)) {
+	UINT tab = 0;
+	try
+	{
+		tab = gpWTInfoA(0, 0, NULL);
+	}
+	catch (...)
+	{
+		tab = 0;
+	}
+	if (!tab) {
 		MessageBox(NULL, L"WinTab Services Not Available.", L"Error",
 			MB_OK | MB_ICONHAND);
-		UnloadWintab();
-		return FALSE;
+		try
+		{
+			UnloadWintab();
+		}
+		catch (...)
+		{
+
+		}
+		
+		tabletOk = false;
+	}
+	else
+	{
+		tabletOk = true;
 	}
 
 

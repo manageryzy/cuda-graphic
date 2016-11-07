@@ -935,7 +935,7 @@ void CguiView::OnUpdateFramePrev(CCmdUI *pCmdUI)
 
 void CguiView::OnUpdateBtnAddWacom(CCmdUI *pCmdUI)
 {
-	pCmdUI->Enable(editTool == nullptr || editTool == toolAddWacom);
+	pCmdUI->Enable(theApp.tabletOk && (editTool == nullptr || editTool == toolAddWacom ));
 	pCmdUI->SetRadio(editTool == toolAddWacom);
 }
 

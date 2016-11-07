@@ -28,6 +28,7 @@ class CguiApp : public CWinAppEx
 {
 public:
 	CguiApp();
+	bool tabletOk = false;
 
 
 // Overrides
