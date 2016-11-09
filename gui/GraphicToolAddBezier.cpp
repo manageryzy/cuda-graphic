@@ -26,9 +26,9 @@ bool GraphicToolAddBezier::onLButtonDown(void * point)
 
 	if (state == STATE_NONE)
 	{
-		view->createing = new Graphic();
-		view->createing->init(GRA_BEZIER, L"unnamed bezier");
-		view->createing->graphicBezier->init(view->frame);
+		view->creating = new Graphic();
+		view->creating->init(GRA_BEZIER, L"unnamed bezier");
+		view->creating->graphicBezier->init(view->frame);
 
 		GraphicBasicBezier bezier;
 		bezier.pt1.init();
@@ -41,14 +41,14 @@ bool GraphicToolAddBezier::onLButtonDown(void * point)
 		bezier.ct1y.setAttrAtFrame(worldPoint.y, view->frame);
 		bezier.ct2x.setAttrAtFrame(worldPoint.x, view->frame);
 		bezier.ct2y.setAttrAtFrame(worldPoint.y, view->frame);
-		view->createing->graphicBezier->curves.push_back(bezier);
+		view->creating->graphicBezier->curves.push_back(bezier);
 
 		view->beginCreating();
 		state = STATE_PT1;
 	}
 	else if (state == STATE_PT2)
 	{
-		auto & bezier = view->createing->graphicBezier->curves.back();
+		auto & bezier = view->creating->graphicBezier->curves.back();
 		bezier.pt2.x.setAttrAtFrame(worldPoint.x, view->frame);
 		bezier.pt2.y.setAttrAtFrame(worldPoint.y, view->frame);
 		bezier.ct2x.setAttrAtFrame(worldPoint.x, view->frame);
@@ -66,14 +66,14 @@ bool GraphicToolAddBezier::onLButtonUp(void * point)
 
 	if (state == STATE_PT1)
 	{
-		auto & bezier = view->createing->graphicBezier->curves.back();
+		auto & bezier = view->creating->graphicBezier->curves.back();
 		bezier.ct1x.setAttrAtFrame(worldPoint.x, view->frame);
 		bezier.ct1y.setAttrAtFrame(worldPoint.y, view->frame);
 		state = STATE_PT2;
 	}
 	else if (state == STATE_PT3)
 	{
-		auto & lastBezier = view->createing->graphicBezier->curves.back();
+		auto & lastBezier = view->creating->graphicBezier->curves.back();
 		lastBezier.ct2x.setAttrAtFrame(lastBezier.pt2.x.atFrame(view->frame) * 2 - worldPoint.x, view->frame);
 		lastBezier.ct2y.setAttrAtFrame(lastBezier.pt2.y.atFrame(view->frame) * 2 - worldPoint.y, view->frame);
 		auto x = lastBezier.pt2.x.atFrame(view->frame);
@@ -90,7 +90,7 @@ bool GraphicToolAddBezier::onLButtonUp(void * point)
 		bezier.ct1y.setAttrAtFrame(worldPoint.y, view->frame);
 		bezier.ct2x.setAttrAtFrame(x, view->frame);
 		bezier.ct2y.setAttrAtFrame(y, view->frame);
-		view->createing->graphicBezier->curves.push_back(bezier);
+		view->creating->graphicBezier->curves.push_back(bezier);
 		state = STATE_PT2;
 	}
 
@@ -104,7 +104,7 @@ bool GraphicToolAddBezier::onMouseMove(void * point)
 
 	if (state == STATE_PT1)
 	{
-		auto & bezier = view->createing->graphicBezier->curves.back();
+		auto & bezier = view->creating->graphicBezier->curves.back();
 		bezier.ct1x.setAttrAtFrame(worldPoint.x, view->frame);
 		bezier.ct1y.setAttrAtFrame(worldPoint.y, view->frame);
 		bezier.pt2.x.setAttrAtFrame(worldPoint.x, view->frame);
@@ -114,7 +114,7 @@ bool GraphicToolAddBezier::onMouseMove(void * point)
 	}
 	else if (state == STATE_PT2)
 	{
-		auto & bezier = view->createing->graphicBezier->curves.back();
+		auto & bezier = view->creating->graphicBezier->curves.back();
 		bezier.pt2.x.setAttrAtFrame(worldPoint.x, view->frame);
 		bezier.pt2.y.setAttrAtFrame(worldPoint.y, view->frame);
 		bezier.ct2x.setAttrAtFrame(worldPoint.x, view->frame);
@@ -122,7 +122,7 @@ bool GraphicToolAddBezier::onMouseMove(void * point)
 	}
 	else if (state == STATE_PT3)
 	{
-		auto & bezier = view->createing->graphicBezier->curves.back();
+		auto & bezier = view->creating->graphicBezier->curves.back();
 		bezier.ct2x.setAttrAtFrame(bezier.pt2.x.atFrame(view->frame) * 2 - worldPoint.x, view->frame);
 		bezier.ct2y.setAttrAtFrame(bezier.pt2.y.atFrame(view->frame) * 2 - worldPoint.y, view->frame);
 	}
@@ -140,8 +140,8 @@ bool GraphicToolAddBezier::onLDoubleClick(void * point)
 		auto res = MessageBox(view->GetSafeHwnd(), L"close?", L"", MB_YESNO);
 		if (res == IDYES)
 		{
-			auto & first = view->createing->graphicBezier->curves.front();
-			auto & last = view->createing->graphicBezier->curves.back();
+			auto & first = view->creating->graphicBezier->curves.front();
+			auto & last = view->creating->graphicBezier->curves.back();
 
 			last.pt2.x.setAttrAtFrame(first.pt1.x.atFrame(view->frame), view->frame);
 			last.pt2.y.setAttrAtFrame(first.pt1.y.atFrame(view->frame), view->frame);
@@ -162,9 +162,9 @@ bool GraphicToolAddBezier::onRButtonUp(void *)
 {
 	if (state == STATE_PT2)
 	{
-		if (view->createing->graphicBezier->curves.size() >= 2)
+		if (view->creating->graphicBezier->curves.size() >= 2)
 		{
-			view->createing->graphicBezier->curves.pop_back();
+			view->creating->graphicBezier->curves.pop_back();
 			return true;
 		}
 		else
@@ -205,8 +205,8 @@ void GraphicToolAddBezier::cancel()
 	auto res = MessageBox(view->GetSafeHwnd(), L"cancel?", L"", MB_YESNO);
 	if (res == IDYES)
 	{
-		delete view->createing;
-		view->createing = nullptr;
+		delete view->creating;
+		view->creating = nullptr;
 		view->editTool = nullptr;
 		state = STATE_NONE;
 	}

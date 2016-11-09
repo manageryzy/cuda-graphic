@@ -1,42 +1,25 @@
-// This MFC Samples source code demonstrates using MFC Microsoft Office Fluent User Interface 
-// (the "Fluent UI") and is provided only as referential material to supplement the 
-// Microsoft Foundation Classes Reference and related electronic documentation 
-// included with the MFC C++ library software.  
-// License terms to copy, use or distribute the Fluent UI are available separately.  
-// To learn more about our Fluent UI licensing program, please visit 
-// http://go.microsoft.com/fwlink/?LinkId=238214.
-//
-// Copyright (C) Microsoft Corporation
-// All rights reserved.
-
 // guiView.cpp : implementation of the CguiView class
 //
 
 #include "stdafx.h"
-// SHARED_HANDLERS can be defined in an ATL project implementing preview, thumbnail
-// and search filter handlers and allows sharing of document code with that project.
+
 #ifndef SHARED_HANDLERS
 #include "gui.h"
 #endif
 
-
 #define USE_GRA_TOOL
 #include "guiDoc.h"
 #include "guiView.h"
+
 #undef USE_GRA_TOOL
 char * gpszProgramName = "CUDAX";
+
 #include "MainFrm.h"
-
-#include <d2d1.h>
-#include <d3d11_1.h>
-
 #include <exception>  
-
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
-
 
 // CguiView
 
@@ -162,44 +145,14 @@ CguiView::CguiView()
 		::MessageBox(0,CString(e.what()),L"error",MB_ICONERROR);
 		exit(-1);
 	}
-
-		
-
+	d2dRender = new D2DRender(this);
 	
-	createing = nullptr;
+	creating = nullptr;
 
 	frame = 0;
 
 	selectedGraphic.clear();
 	selectedPoint.clear();
-
-	lastFrame = std::chrono::steady_clock::now();
-
-	HRESULT hr = D2D1CreateFactory(
-		D2D1_FACTORY_TYPE_SINGLE_THREADED,
-		&pD2DFactory
-	);
-	if (hr != S_OK)throw hr;
-	
-
-	hr = DWriteCreateFactory(
-		DWRITE_FACTORY_TYPE_SHARED,
-		__uuidof(pDWriteFactory),
-		reinterpret_cast<IUnknown **>(&pDWriteFactory)
-	);
-	if (hr != S_OK)throw hr;
-
-	hr = pDWriteFactory->CreateTextFormat(
-		L"Verdana",
-		NULL,
-		DWRITE_FONT_WEIGHT_NORMAL,
-		DWRITE_FONT_STYLE_NORMAL,
-		DWRITE_FONT_STRETCH_NORMAL,
-		12,
-		L"", //locale
-		&pTextFormat
-	);
-	if (hr != S_OK)throw hr;
 
 	pWTMutex = new CMutex(TRUE, NULL, NULL);
 	hCtx = 0;
@@ -207,10 +160,6 @@ CguiView::CguiView()
 
 CguiView::~CguiView()
 {
-	SafeRelease(&pD2DFactory);
-	SafeRelease(&pDWriteFactory);
-	SafeRelease(&pTextFormat);
-
 	delete pWTMutex;
 	if (hCtx)
 	{
@@ -228,20 +177,20 @@ BOOL CguiView::PreCreateWindow(CREATESTRUCT& cs)
 void CguiView::beginCreating()
 {
 	selectedGraphic.clear();
-	//cudaRender->getCache()->change(frame);
+	cudaRender->getCache()->change(frame);
 }
 
 void CguiView::endCreating(bool end)
 {
 	CguiDoc* pDoc = GetDocument(); 
 	ASSERT_VALID(pDoc);
-	if (createing)
+	if (creating)
 	{
-		pDoc->grphics[createing->guid] = std::auto_ptr<Graphic>(createing);
-		pDoc->layer.push_back(createing->guid);
-		selectedGraphic.insert(createing->guid);
+		pDoc->graphics[creating->guid] = std::auto_ptr<Graphic>(creating);
+		pDoc->layer.push_back(creating->guid);
+		selectedGraphic.insert(creating->guid);
 	}
-	createing = nullptr;
+	creating = nullptr;
 	if(end)
 		editTool = nullptr;
 
@@ -251,68 +200,6 @@ void CguiView::endCreating(bool end)
 	frame->m_wndSceneView.FillClassView(pDoc);
 }
 
-inline void CguiView::renderGraphicFast(Graphic* g, GraphicCamera * camera, ID2D1HwndRenderTarget* pRT, ID2D1SolidColorBrush * brush, ID2D1StrokeStyle * style)
-{
-	switch (g->type)
-	{
-	case GRA_POLYGON:
-	{
-		// try to render polygon here
-		ASSERT(g->graphicPolygon.get() != nullptr);
-		auto polygon = g->graphicPolygon.get();
-		auto ptList = polygon->atFrame(frame);
-		if (ptList.size() < 2)
-			return;
-		auto lastPoint = ptList.begin();
-		for (auto i = ptList.begin() + 1; i < ptList.end(); ++i)
-		{
-			auto pt1 = camera->toCameraView(lastPoint->x, lastPoint->y);
-			auto pt2 = camera->toCameraView(i->x, i->y);
-
-			pRT->DrawLine(pt1, pt2, brush, (i->width + lastPoint->width) / 2, style);
-
-			lastPoint = i;
-		}
-	}
-	break;
-	case GRA_CIRCLE:
-	{
-		// try to render circle here
-		ASSERT(g->graphicCircle.get() != nullptr);
-		auto circle = g->graphicCircle.get();
-		auto pt = camera->toCameraView(circle->x.atFrame(frame), circle->y.atFrame(frame));
-		auto r = camera->scale * circle->r.atFrame(frame);
-		D2D1_ELLIPSE eclipse;
-		eclipse.point = pt;
-		eclipse.radiusX = r;
-		eclipse.radiusY = r;
-		pRT->DrawEllipse(eclipse, brush, circle->width.atFrame(frame), style);
-	}
-	break;
-	case GRA_BEZIER:
-	{
-		// try to render bezier here
-		auto ptList = g->graphicBezier->atFrame(frame);
-		if (ptList.size() < 2)
-			return;
-		auto lastPoint = ptList.begin();
-		for (auto i = ptList.begin() + 1; i < ptList.end(); ++i)
-		{
-			auto pt1 = camera->toCameraView(lastPoint->x, lastPoint->y);
-			auto pt2 = camera->toCameraView(i->x, i->y);
-
-			pRT->DrawLine(pt1, pt2, brush, (i->width + lastPoint->width) / 2, style);
-
-			lastPoint = i;
-		}
-	}
-	break;
-	case GRA_NONE:
-		break;
-	default:
-		throw "unkown type";
-	}
-}
 
 inline bool CguiView::dispatchToolMsg(int msg, void * param)
 {
@@ -340,143 +227,7 @@ inline bool CguiView::dispatchToolMsg(int msg, void * param)
 void CguiView::OnDraw(CDC* /*pDC*/)
 {
 	drawed = true;
-	CguiDoc* pDoc = GetDocument();
-	ASSERT_VALID(pDoc);
-	if (!pDoc)
-		return;
-
-	if (!pDoc->inited)
-		return;
-
-	RECT rc;
-	GetClientRect(&rc);
-
-	ID2D1HwndRenderTarget* pRT = NULL;
-	HRESULT hr = pD2DFactory->CreateHwndRenderTarget(
-		D2D1::RenderTargetProperties(),
-		D2D1::HwndRenderTargetProperties(
-			GetSafeHwnd(),
-			D2D1::SizeU(
-				rc.right - rc.left,
-				rc.bottom - rc.top)
-		),
-		&pRT
-	);
-
-	ID2D1SolidColorBrush* pGrayBrush = NULL;
-	pRT->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::Gray),
-		&pGrayBrush
-	);
-	
-
-	ID2D1StrokeStyle * style = NULL;
-	pD2DFactory->CreateStrokeStyle(
-		D2D1::StrokeStyleProperties(
-			D2D1_CAP_STYLE_ROUND,
-			D2D1_CAP_STYLE_ROUND,
-			D2D1_CAP_STYLE_ROUND
-		),
-		0, 0, &style
-	);
-	
-
-	ID2D1SolidColorBrush* pRedBrush = NULL;
-	pRT->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::Red),
-		&pRedBrush
-	);
-	
-
-	ID2D1SolidColorBrush* pWhiteBrush = NULL;
-	pRT->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::White),
-		&pWhiteBrush
-	);
-	
-
-
-	ID2D1SolidColorBrush* pGreenBrush = NULL;
-	pRT->CreateSolidColorBrush(
-		D2D1::ColorF(D2D1::ColorF::Green),
-		&pGreenBrush
-	);
-	
-
-	ASSERT(pDoc != nullptr);
-	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
-	GraphicCamera * camera = pDoc->cameras[pDoc->currentCamera].get();
-
-
-	int width = rc.right - rc.left;
-	int height = rc.bottom - rc.top;
-
-	DWORD * data = cudaRender->getCache()->getImage(height*2, width *2, frame, camera->x, camera->y, camera->scale * 2, camera->scale * 2, pDoc, &selectedGraphic);
-	
-	ID2D1Bitmap * bitmap = nullptr;
-	D2D1_SIZE_U size;
-	size.height = height*2;
-	size.width = width*2;
-	pRT->CreateBitmap(size, (void *)data, size.width * sizeof(DWORD), D2D1::BitmapProperties(
-		D2D1::PixelFormat(DXGI_FORMAT_R8G8B8A8_UNORM, D2D1_ALPHA_MODE_PREMULTIPLIED)
-	), &bitmap);
-	
-	pRT->BeginDraw();
-	pRT->Clear();
-
-	D2D1_RECT_F rect_screen;
-	rect_screen.top = 0;
-	rect_screen.left = 0;
-	rect_screen.bottom = height;
-	rect_screen.right = width;
-	D2D1_RECT_F rect_bmp;
-	rect_bmp.top = 0;
-	rect_bmp.left = 0;
-	rect_bmp.bottom = height*2;
-	rect_bmp.right = width*2;
-	pRT->DrawBitmap(bitmap, rect_screen,1.0f,D2D1_BITMAP_INTERPOLATION_MODE_LINEAR,0);
-	// begin draw
-	
-	if (selectMode == GUI_SELECT_MODE_OBJECT)
-	{
-		for (auto & guid : selectedGraphic)
-		{
-			ASSERT(pDoc->grphics.find(guid) != pDoc->grphics.end());
-			ASSERT(pDoc->grphics[guid].get() != nullptr);
-
-			Graphic * g = pDoc->grphics[guid].get();
-			renderGraphicFast(g, camera, pRT, pWhiteBrush, style);
-		}
-
-	}
-	else if (selectMode == GUI_SELECT_MODE_VERTEX)
-	{
-		for (auto & pt : selectedPoint)
-		{
-			
-		}
-	}
-
-	if(createing)
-		renderGraphicFast(createing, camera, pRT, pWhiteBrush, style);
-	
-
-	// end draw
-	std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
-	int fps = (int)(1000000.0 / (std::chrono::duration_cast<std::chrono::microseconds>(now - lastFrame).count()));
-	lastFrame = now;
-	CString fpsStr;
-	fpsStr.Format(L"FPS:%d ", fps);
-	pRT->DrawTextW(fpsStr, fpsStr.GetLength(), pTextFormat, D2D1::RectF(0, 0, 1000, 30), pGreenBrush);
-	hr = pRT->EndDraw();
-	
-	SafeRelease(&pRT);
-	SafeRelease(&pGrayBrush);
-	SafeRelease(&pGreenBrush);
-	SafeRelease(&pRedBrush);
-	SafeRelease(&pWhiteBrush);
-	SafeRelease(&style);
-	SafeRelease(&bitmap);
+	d2dRender->renderScence();
 }
 
 void CguiView::OnRButtonUp(UINT /* nFlags */, CPoint point)
@@ -526,8 +277,8 @@ void CguiView::OnBtnAddLine()
 		editTool = toolAddLine;
 	else if (editTool == toolAddLine)
 	{
-		if (createing) delete createing;
-		createing = nullptr;
+		if (creating) delete creating;
+		creating = nullptr;
 		editTool = nullptr;
 		toolAddLine->reset();
 	}
@@ -540,8 +291,8 @@ void CguiView::OnBtnAddBreakLine()
 		editTool = toolAddBreakline;
 	else if (editTool == toolAddBreakline)
 	{
-		if (createing) delete createing;
-		createing = nullptr;
+		if (creating) delete creating;
+		creating = nullptr;
 		editTool = nullptr;
 		toolAddBreakline->reset();
 	}
@@ -554,8 +305,8 @@ void CguiView::OnBtnAddTriangle()
 		editTool = toolAddTrangle;
 	else if (editTool == toolAddTrangle)
 	{
-		if (createing) delete createing;
-		createing = nullptr;
+		if (creating) delete creating;
+		creating = nullptr;
 		editTool = nullptr;
 		toolAddTrangle->reset();
 	}
@@ -568,8 +319,8 @@ void CguiView::OnBtnAddRectangle()
 		editTool = toolAddRect;
 	else if (editTool == toolAddRect)
 	{
-		if (createing) delete createing;
-		createing = nullptr;
+		if (creating) delete creating;
+		creating = nullptr;
 		editTool = nullptr;
 		toolAddRect->reset();
 	}
@@ -582,8 +333,8 @@ void CguiView::OnBtnAddCircle()
 		editTool = toolAddCircle;
 	else if (editTool == toolAddCircle)
 	{
-		if (createing) delete createing;
-		createing = nullptr;
+		if (creating) delete creating;
+		creating = nullptr;
 		editTool = nullptr;
 		toolAddCircle->reset();
 	}
@@ -596,8 +347,8 @@ void CguiView::OnBtnAddBezier()
 		editTool = toolAddBezier;
 	else if (editTool == toolAddBezier)
 	{
-		if (createing) delete createing;
-		createing = nullptr;
+		if (creating) delete creating;
+		creating = nullptr;
 		editTool = nullptr;
 		toolAddBezier->reset();
 	}
@@ -772,8 +523,8 @@ void CguiView::OnBtnAddWacom()
 		editTool = toolAddWacom;
 	else if (editTool == toolAddWacom)
 	{
-		if(createing)delete createing;
-		createing = nullptr;
+		if(creating)delete creating;
+		creating = nullptr;
 		editTool = nullptr;
 	}
 		
@@ -887,7 +638,7 @@ void CguiView::OnUpdateBtnToPolygon(CCmdUI *pCmdUI)
 	{
 		try 
 		{
-			if (GetDocument()->grphics[*selectedGraphic.begin()]->type != GRA_POLYGON)
+			if (GetDocument()->graphics[*selectedGraphic.begin()]->type != GRA_POLYGON)
 			{
 				pCmdUI->Enable(1);
 			}
@@ -966,9 +717,9 @@ afx_msg LRESULT CguiView::OnViewReset(WPARAM wParam, LPARAM lParam)
 	selectedGraphic.clear();
 	selectedPoint.clear();
 
-	if (createing)
-		delete createing;
-	createing = nullptr;
+	if (creating)
+		delete creating;
+	creating = nullptr;
 
 	auto pDoc = GetDocument();
 	CMainFrame * f = (CMainFrame *)AfxGetMainWnd();

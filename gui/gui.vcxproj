@@ -224,6 +224,7 @@
     <Text Include="ReadMe.txt" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="D2DRender.h" />
     <ClInclude Include="Graphic.h" />
     <ClInclude Include="GraphicBezier.h" />
     <ClInclude Include="GraphicCamera.h" />
@@ -263,6 +264,7 @@
     <ClInclude Include="ViewTree.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="D2DRender.cpp" />
     <ClCompile Include="Graphic.cpp" />
     <ClCompile Include="GraphicBezier.cpp" />
     <ClCompile Include="GraphicCamera.cpp" />

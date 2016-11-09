@@ -23,17 +23,17 @@ bool GraphicToolAddLine::onLButtonDown(void * point)
 	
 	if (state == STATE_NONE)
 	{
-		view->createing = new Graphic();
-		view->createing->init(GRA_POLYGON,L"unnamed line");
-		view->createing->graphicPolygon->addPoint(view->frame,worldPoint.x, worldPoint.y);
-		view->createing->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
+		view->creating = new Graphic();
+		view->creating->init(GRA_POLYGON,L"unnamed line");
+		view->creating->graphicPolygon->addPoint(view->frame,worldPoint.x, worldPoint.y);
+		view->creating->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
 		view->beginCreating();
 		state = STATE_PT1;
 	}
 	else if (state == STATE_PT1)
 	{
-		view->createing->graphicPolygon->points[1].x.setAttrAtFrame(worldPoint.x, view->frame);
-		view->createing->graphicPolygon->points[1].y.setAttrAtFrame(worldPoint.y, view->frame);
+		view->creating->graphicPolygon->points[1].x.setAttrAtFrame(worldPoint.x, view->frame);
+		view->creating->graphicPolygon->points[1].y.setAttrAtFrame(worldPoint.y, view->frame);
 		view->endCreating();
 		state = STATE_NONE;
 
@@ -53,8 +53,8 @@ bool GraphicToolAddLine::onMouseMove(void * point)
 
 	if (state == STATE_PT1)
 	{
-		view->createing->graphicPolygon->points[1].x.setAttrAtFrame(worldPoint.x, view->frame);
-		view->createing->graphicPolygon->points[1].y.setAttrAtFrame(worldPoint.y, view->frame);
+		view->creating->graphicPolygon->points[1].x.setAttrAtFrame(worldPoint.x, view->frame);
+		view->creating->graphicPolygon->points[1].y.setAttrAtFrame(worldPoint.y, view->frame);
 	}
 
 	return true;
@@ -98,8 +98,8 @@ void GraphicToolAddLine::cancel()
 	auto res = MessageBox(view->GetSafeHwnd(), L"cancel?", L"", MB_YESNO);
 	if (res == IDYES)
 	{
-		delete view->createing;
-		view->createing = nullptr;
+		delete view->creating;
+		view->creating = nullptr;
 		view->editTool = nullptr;
 		state = STATE_NONE;
 	}

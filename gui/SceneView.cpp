@@ -145,7 +145,7 @@ void CSceneView::FillClassView(CguiDoc * doc)
 	hClass = m_wndClassView.InsertItem(_T("Graphics"), 2, 2, hRoot);
 	if (doc)for (int i = doc->layer.size()-1;i>=0;i--)
 	{
-		auto g = doc->grphics[doc->layer.at(i)].get();
+		auto g = doc->graphics[doc->layer.at(i)].get();
 		
 		switch (g->type)
 		{

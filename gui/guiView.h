@@ -43,7 +43,7 @@
 //#define GUI_TOOL_EDIT_ROTATE 10
 //#define GUI_TOOL_CAMERA_PAN 11
 
-#include <chrono>
+
 #include <set>
 #include "WINTAB.H"
 #define PACKETDATA	PK_X | PK_Y | PK_CURSOR | PK_BUTTONS | PK_NORMAL_PRESSURE
@@ -53,6 +53,7 @@
 
 #include "GraphicToolAll.h"
 #include "../cuda-graphic/CUDARender.hpp"
+#include "D2DRender.h"
 
 class CguiView : public CView
 {
@@ -64,23 +65,15 @@ protected: // create from serialization only
 public:
 	CguiDoc* GetDocument() const;
 
-	ID2D1Factory* pD2DFactory = NULL;
-	IDWriteTextFormat * pTextFormat = NULL;
-	IDWriteFactory * pDWriteFactory = NULL;
-	bool drawed = true;
-	std::chrono::steady_clock::time_point lastFrame;
-
-	//int state;
-	//int stateBackUp;
 	int selectMode;
-	/*int selectTool;
-	int editTool;
-	int cameraTool;*/
-	Graphic * createing = nullptr;
+
+	Graphic * creating = nullptr;
 	int frame;
+
 	GraphicTool * selectTool = nullptr;
 	GraphicTool * editTool = nullptr;
 	GraphicTool * cameraTool = nullptr;
+
 	GraphicToolAddBezier * toolAddBezier = nullptr;
 	GraphicToolAddBreakline * toolAddBreakline = nullptr;
 	GraphicToolAddCircle * toolAddCircle = nullptr;
@@ -96,20 +89,17 @@ public:
 	GraphicToolScale * toolScale = nullptr;
 	GraphicToolSelecRect * toolSelectRect = nullptr;
 	GraphicToolSelectPointer * toolSelectPointer = nullptr;
+
 	CUDARender * cudaRender = nullptr;
+	D2DRender * d2dRender = nullptr;
+
+	bool drawed = true;
 
 	std::set<GUID_> selectedGraphic;
 	std::set<GraphicPoint *> selectedPoint;
 
 	void beginCreating();
-
 	void endCreating(bool end = true);
-
-	// mouse record
-	//CPoint lastPointerPos;
-	//GraphicCamera panCamera;
-
-	void inline renderGraphicFast(Graphic * g, GraphicCamera * camera, ID2D1HwndRenderTarget* pRT, ID2D1SolidColorBrush * brush, ID2D1StrokeStyle * style);
 private:
 	//wacom
 	LOGCONTEXTA lc;

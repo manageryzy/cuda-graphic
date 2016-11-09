@@ -75,7 +75,7 @@ void GraphicToolMove::doMove(void * point)
 		{
 			for (auto & guid : view->selectedGraphic)
 			{
-				pDoc->grphics[guid]->move(-deltaX, -deltaY, view->frame);
+				pDoc->graphics[guid]->move(-deltaX, -deltaY, view->frame);
 			}
 		}
 	}

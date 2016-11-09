@@ -24,22 +24,22 @@ bool GraphicToolAddRect::onLButtonDown(void * point)
 
 	if (state == STATE_NONE)
 	{
-		view->createing = new Graphic();
-		view->createing->init(GRA_POLYGON, L"unnamed rect");
-		view->createing->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
-		view->createing->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
-		view->createing->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
-		view->createing->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
-		view->createing->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
+		view->creating = new Graphic();
+		view->creating->init(GRA_POLYGON, L"unnamed rect");
+		view->creating->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
+		view->creating->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
+		view->creating->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
+		view->creating->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
+		view->creating->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
 		view->beginCreating();
 		state = STATE_PT1;
 	}
 	else if (state == STATE_PT1)
 	{
-		view->createing->graphicPolygon->points[1].x.setAttrAtFrame(worldPoint.x, view->frame);
-		view->createing->graphicPolygon->points[2].x.setAttrAtFrame(worldPoint.x, view->frame);
-		view->createing->graphicPolygon->points[2].y.setAttrAtFrame(worldPoint.y, view->frame);
-		view->createing->graphicPolygon->points[3].y.setAttrAtFrame(worldPoint.y, view->frame);
+		view->creating->graphicPolygon->points[1].x.setAttrAtFrame(worldPoint.x, view->frame);
+		view->creating->graphicPolygon->points[2].x.setAttrAtFrame(worldPoint.x, view->frame);
+		view->creating->graphicPolygon->points[2].y.setAttrAtFrame(worldPoint.y, view->frame);
+		view->creating->graphicPolygon->points[3].y.setAttrAtFrame(worldPoint.y, view->frame);
 		view->endCreating();
 		state = STATE_NONE;
 
@@ -59,10 +59,10 @@ bool GraphicToolAddRect::onMouseMove(void * point)
 
 	if (state == STATE_PT1)
 	{
-		view->createing->graphicPolygon->points[1].x.setAttrAtFrame(worldPoint.x, view->frame);
-		view->createing->graphicPolygon->points[2].x.setAttrAtFrame(worldPoint.x, view->frame);
-		view->createing->graphicPolygon->points[2].y.setAttrAtFrame(worldPoint.y, view->frame);
-		view->createing->graphicPolygon->points[3].y.setAttrAtFrame(worldPoint.y, view->frame);
+		view->creating->graphicPolygon->points[1].x.setAttrAtFrame(worldPoint.x, view->frame);
+		view->creating->graphicPolygon->points[2].x.setAttrAtFrame(worldPoint.x, view->frame);
+		view->creating->graphicPolygon->points[2].y.setAttrAtFrame(worldPoint.y, view->frame);
+		view->creating->graphicPolygon->points[3].y.setAttrAtFrame(worldPoint.y, view->frame);
 	}
 
 	return true;
@@ -106,8 +106,8 @@ void GraphicToolAddRect::cancel()
 	auto res = MessageBox(view->GetSafeHwnd(), L"cancel?", L"", MB_YESNO);
 	if (res == IDYES)
 	{
-		delete view->createing;
-		view->createing = nullptr;
+		delete view->creating;
+		view->creating = nullptr;
 		view->editTool = nullptr;
 		state = STATE_NONE;
 	}

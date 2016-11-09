@@ -24,25 +24,25 @@ bool GraphicToolAddTrangle::onLButtonDown(void * point)
 
 	if (state == STATE_NONE)
 	{
-		view->createing = new Graphic();
-		view->createing->init(GRA_POLYGON, L"unnamed trangle");
-		view->createing->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
-		view->createing->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
-		view->createing->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
-		view->createing->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
+		view->creating = new Graphic();
+		view->creating->init(GRA_POLYGON, L"unnamed trangle");
+		view->creating->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
+		view->creating->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
+		view->creating->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
+		view->creating->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y);
 		view->beginCreating();
 		state = STATE_PT1;
 	}
 	else if (state == STATE_PT1)
 	{
-		view->createing->graphicPolygon->points[1].x.setAttrAtFrame(worldPoint.x, view->frame);
-		view->createing->graphicPolygon->points[1].y.setAttrAtFrame(worldPoint.y, view->frame);
+		view->creating->graphicPolygon->points[1].x.setAttrAtFrame(worldPoint.x, view->frame);
+		view->creating->graphicPolygon->points[1].y.setAttrAtFrame(worldPoint.y, view->frame);
 		state = STATE_PT2;
 	}
 	else if (state == STATE_PT2)
 	{
-		view->createing->graphicPolygon->points[2].x.setAttrAtFrame(worldPoint.x, view->frame);
-		view->createing->graphicPolygon->points[2].y.setAttrAtFrame(worldPoint.y, view->frame);
+		view->creating->graphicPolygon->points[2].x.setAttrAtFrame(worldPoint.x, view->frame);
+		view->creating->graphicPolygon->points[2].y.setAttrAtFrame(worldPoint.y, view->frame);
 		view->endCreating();
 		state = STATE_NONE;
 
@@ -62,13 +62,13 @@ bool GraphicToolAddTrangle::onMouseMove(void * point)
 
 	if (state == STATE_PT1)
 	{
-		view->createing->graphicPolygon->points[1].x.setAttrAtFrame(worldPoint.x, view->frame);
-		view->createing->graphicPolygon->points[1].y.setAttrAtFrame(worldPoint.y, view->frame);
+		view->creating->graphicPolygon->points[1].x.setAttrAtFrame(worldPoint.x, view->frame);
+		view->creating->graphicPolygon->points[1].y.setAttrAtFrame(worldPoint.y, view->frame);
 	}
 	else if (state == STATE_PT2)
 	{
-		view->createing->graphicPolygon->points[2].x.setAttrAtFrame(worldPoint.x, view->frame);
-		view->createing->graphicPolygon->points[2].y.setAttrAtFrame(worldPoint.y, view->frame);
+		view->creating->graphicPolygon->points[2].x.setAttrAtFrame(worldPoint.x, view->frame);
+		view->creating->graphicPolygon->points[2].y.setAttrAtFrame(worldPoint.y, view->frame);
 	}
 	return true;
 }
@@ -82,10 +82,10 @@ bool GraphicToolAddTrangle::onRButtonUp(void *)
 	}
 	else if (state == STATE_PT2)
 	{
-		auto x = view->createing->graphicPolygon->points[0].x.atFrame(view->frame);
-		auto y = view->createing->graphicPolygon->points[0].y.atFrame(view->frame);
-		view->createing->graphicPolygon->points[2].x.setAttrAtFrame(x, view->frame);
-		view->createing->graphicPolygon->points[2].y.setAttrAtFrame(y, view->frame);
+		auto x = view->creating->graphicPolygon->points[0].x.atFrame(view->frame);
+		auto y = view->creating->graphicPolygon->points[0].y.atFrame(view->frame);
+		view->creating->graphicPolygon->points[2].x.setAttrAtFrame(x, view->frame);
+		view->creating->graphicPolygon->points[2].y.setAttrAtFrame(y, view->frame);
 		state = STATE_PT1;
 		return true;
 	}
@@ -121,8 +121,8 @@ void GraphicToolAddTrangle::cancel()
 	auto res = MessageBox(view->GetSafeHwnd(), L"cancel?", L"", MB_YESNO);
 	if (res == IDYES)
 	{
-		delete view->createing;
-		view->createing = nullptr;
+		delete view->creating;
+		view->creating = nullptr;
 		view->editTool = nullptr;
 		state = STATE_NONE;
 	}

@@ -22,22 +22,22 @@ bool GraphicToolAddWacom::onWtPacket(void * stru)
 
 	if (msg->button)
 	{
-		if (view->createing)
+		if (view->creating)
 		{
-			ASSERT(view->createing->type == GRA_POLYGON);
-			view->createing->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y, 0xFFFFFFFF, msg->press / 128.0f);
+			ASSERT(view->creating->type == GRA_POLYGON);
+			view->creating->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y, 0xFFFFFFFF, msg->press / 128.0f);
 		}
 		else
 		{
-			view->createing = new Graphic();
-			view->createing->init(GRA_POLYGON, L"new ink");
-			view->createing->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y, 0xFFFFFFFF, msg->press / 128.0f);
+			view->creating = new Graphic();
+			view->creating->init(GRA_POLYGON, L"new ink");
+			view->creating->graphicPolygon->addPoint(view->frame, worldPoint.x, worldPoint.y, 0xFFFFFFFF, msg->press / 128.0f);
 			view->beginCreating();
 		}
 	}
 	else
 	{
-		if (view->createing)
+		if (view->creating)
 		{
 			view->endCreating(false);
 		}

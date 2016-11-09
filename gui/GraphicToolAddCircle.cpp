@@ -23,20 +23,20 @@ bool GraphicToolAddCircle::onLButtonDown(void * point)
 
 	if (state == STATE_NONE)
 	{
-		view->createing = new Graphic();
-		view->createing->init(GRA_CIRCLE, L"unnamed circle");
-		view->createing->graphicCircle->init();
-		view->createing->graphicCircle->x.setAttrAtFrame(worldPoint.x, view->frame);
-		view->createing->graphicCircle->y.setAttrAtFrame(worldPoint.y, view->frame);
+		view->creating = new Graphic();
+		view->creating->init(GRA_CIRCLE, L"unnamed circle");
+		view->creating->graphicCircle->init();
+		view->creating->graphicCircle->x.setAttrAtFrame(worldPoint.x, view->frame);
+		view->creating->graphicCircle->y.setAttrAtFrame(worldPoint.y, view->frame);
 		view->beginCreating();
 		state = STATE_PT1;
 	}
 	else if (state == STATE_PT1)
 	{
-		auto centerX = view->createing->graphicCircle->x.atFrame(view->frame);
-		auto centerY = view->createing->graphicCircle->y.atFrame(view->frame);
+		auto centerX = view->creating->graphicCircle->x.atFrame(view->frame);
+		auto centerY = view->creating->graphicCircle->y.atFrame(view->frame);
 		auto r = sqrtf((centerX - worldPoint.x)*(centerX - worldPoint.x) + (centerY - worldPoint.y)*(centerY - worldPoint.y));
-		view->createing->graphicCircle->r.setAttrAtFrame(r, view->frame);
+		view->creating->graphicCircle->r.setAttrAtFrame(r, view->frame);
 		view->endCreating();
 		state = STATE_NONE;
 
@@ -57,10 +57,10 @@ bool GraphicToolAddCircle::onMouseMove(void * point)
 
 	if (state == STATE_PT1)
 	{
-		auto centerX = view->createing->graphicCircle->x.atFrame(view->frame);
-		auto centerY = view->createing->graphicCircle->y.atFrame(view->frame);
+		auto centerX = view->creating->graphicCircle->x.atFrame(view->frame);
+		auto centerY = view->creating->graphicCircle->y.atFrame(view->frame);
 		auto r = sqrtf((centerX - worldPoint.x)*(centerX - worldPoint.x) + (centerY - worldPoint.y)*(centerY - worldPoint.y));
-		view->createing->graphicCircle->r.setAttrAtFrame(r, view->frame);
+		view->creating->graphicCircle->r.setAttrAtFrame(r, view->frame);
 	}
 
 	return true;
@@ -106,8 +106,8 @@ void GraphicToolAddCircle::cancel()
 	auto res = MessageBox(view->GetSafeHwnd(), L"cancel?", L"", MB_YESNO);
 	if (res == IDYES)
 	{
-		delete view->createing;
-		view->createing = nullptr;
+		delete view->creating;
+		view->creating = nullptr;
 		view->editTool = nullptr;
 		state = STATE_NONE;
 	}

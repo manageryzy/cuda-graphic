@@ -37,7 +37,7 @@ void CUDARender::renderScene(DWORD * output, int height, int width, int frame, f
 	{
 		if (selected->find(guid) != selected->end())
 			continue;
-		pointCount += doc->grphics[guid]->pointCount();
+		pointCount += doc->graphics[guid]->pointCount();
 		graphicCount++;
 	}
 
@@ -54,7 +54,7 @@ void CUDARender::renderScene(DWORD * output, int height, int width, int frame, f
 		if (selected->find(guid) != selected->end())
 			continue;
 
-		auto gra = doc->grphics[guid]->atFrame(frame);
+		auto gra = doc->graphics[guid]->atFrame(frame);
 		for (int i = 0; i < gra.size(); i++)
 		{
 			points[curStartPos] = gra.at(i);

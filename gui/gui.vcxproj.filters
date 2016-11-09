@@ -43,6 +43,12 @@
     <Filter Include="Header Files\misc">
       <UniqueIdentifier>{4a243426-12f0-43aa-9ebb-9707e9170fb8}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\view\renderer">
+      <UniqueIdentifier>{933465a6-dc27-47d8-8066-8c090b14e37f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\view\Renderer">
+      <UniqueIdentifier>{9246ad82-fbee-49c7-aecc-a84fa32e1b22}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <Text Include="ReadMe.txt" />
@@ -159,6 +165,9 @@
     <ClInclude Include="SelectSet.h">
       <Filter>Header Files\misc</Filter>
     </ClInclude>
+    <ClInclude Include="D2DRender.h">
+      <Filter>Header Files\view\Renderer</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="gui.cpp">
@@ -262,6 +271,9 @@
     </ClCompile>
     <ClCompile Include="GraphicToolSelectPointer.cpp">
       <Filter>Source Files\view\tools</Filter>
+    </ClCompile>
+    <ClCompile Include="D2DRender.cpp">
+      <Filter>Source Files\view\renderer</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

@@ -84,7 +84,7 @@ void GraphicToolScale::doScale(void * point)
 
 	for (auto & guid : view->selectedGraphic)
 	{
-		auto gra = pDoc->grphics[guid].get();
+		auto gra = pDoc->graphics[guid].get();
 		if (gra->type == GRA_POLYGON)
 		{
 			for (auto & pt : gra->graphicPolygon->points)

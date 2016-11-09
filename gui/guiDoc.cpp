@@ -54,7 +54,7 @@ BOOL CguiDoc::OnNewDocument()
 
 	// TODO: add reinitialization code here
 	// (SDI documents will reuse this document)
-	this->grphics.clear();
+	this->graphics.clear();
 	this->layer.clear();
 	this->cameras.clear();
 
@@ -86,8 +86,8 @@ void CguiDoc::Serialize(CArchive& ar)
 		// TODO: add storing code here
 		ar << (DWORD)0x41445543;
 
-		ar << this->grphics.size();
-		for (auto & g : this->grphics)
+		ar << this->graphics.size();
+		for (auto & g : this->graphics)
 		{
 			g.second->Serialize(ar);
 		}
@@ -115,7 +115,7 @@ void CguiDoc::Serialize(CArchive& ar)
 		if (magic != 0x41445543)
 			throw "wrong magic number";
 
-		this->grphics.clear();
+		this->graphics.clear();
 		this->layer.clear();
 		this->cameras.clear();
 
@@ -125,7 +125,7 @@ void CguiDoc::Serialize(CArchive& ar)
 		{
 			Graphic * g = new Graphic;
 			g->Serialize(ar);
-			this->grphics[g->guid] = std::auto_ptr<Graphic>(g);
+			this->graphics[g->guid] = std::auto_ptr<Graphic>(g);
 		}
 
 		long long int layerCount;
