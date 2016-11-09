@@ -193,7 +193,7 @@ int Graphic::pointCount()
 		return graphicPolygon->points.size();
 		break;
 	case GRA_CIRCLE:
-		return GRAPHIC_SETTING_CIRCLE_EDGES;
+		return GRAPHIC_SETTING_CIRCLE_EDGES + 1;
 		break;
 	case GRA_BEZIER:
 		return GRAPHIC_SETTING_BEZIER_EDGES * graphicBezier->curves.size();

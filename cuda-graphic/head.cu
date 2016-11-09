@@ -3,7 +3,7 @@
 namespace CUDARenderCore
 {
 	bool init();
-	bool render(DWORD * output,
+	cudaError_t render(DWORD * output,
 		int height, int width, 
 		float camX, float camY, 
 		float scaleX, float scaleY,

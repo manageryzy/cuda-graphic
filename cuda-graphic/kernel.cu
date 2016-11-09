@@ -201,12 +201,18 @@ bool CUDARenderCore::init()
 		return false;
 	}
 
+	cudaStatus = cudaSetDeviceFlags(cudaDeviceBlockingSync);
+	if (cudaStatus != cudaSuccess) {
+		fprintf(stderr, "cudaSetDeviceFlags failed!  ");
+		return false;
+	}
+
 	return true;
 }
 
 
 
-bool CUDARenderCore::render(DWORD * output,
+cudaError_t CUDARenderCore::render(DWORD * output,
 	int height, int width,
 	float camX, float camY,
 	float scaleX, float scaleY,
@@ -236,57 +242,66 @@ bool CUDARenderCore::render(DWORD * output,
 
 	cudaStatus = cudaMalloc((void**)&setting_dev, sizeof(CUDARenderSetting));
 	if (cudaStatus != cudaSuccess) {
+		__debugbreak();
 		fprintf(stderr, "cudaMalloc failed!");
-		return false;
+		goto Error;
 	}
 
 	cudaStatus = cudaMalloc((void**)&points_dev, (pointCount + 16) * sizeof(GraphicBasicPoint));
 	if (cudaStatus != cudaSuccess) {
+		__debugbreak();
 		fprintf(stderr, "cudaMalloc failed!");
-		return false;
+		goto Error;
 	}
 
 	cudaStatus = cudaMalloc((void**)&fillColor_dev, (graphicCount + 16) * sizeof(DWORD));
 	if (cudaStatus != cudaSuccess) {
+		__debugbreak();
 		fprintf(stderr, "cudaMalloc failed!");
-		return false;
+		goto Error;
 	}
 
 	cudaStatus = cudaMalloc((void**)&startPos_dev, (graphicCount + 16) * sizeof(int));
 	if (cudaStatus != cudaSuccess) {
+		__debugbreak();
 		fprintf(stderr, "cudaMalloc failed!");
-		return false;
+		goto Error;
 	}
 
 	cudaStatus = cudaMalloc((void**)&res_dev, height * width * sizeof(DWORD));
 	if (cudaStatus != cudaSuccess) {
+		__debugbreak();
 		fprintf(stderr, "cudaMalloc failed!");
-		return false;
+		goto Error;
 	}
 
 	cudaStatus = cudaMemcpy(setting_dev, &setting, sizeof(CUDARenderSetting), cudaMemcpyHostToDevice);
 	if (cudaStatus != cudaSuccess) {
+		__debugbreak();
 		fprintf(stderr, "cudaMemcpy failed!");
-		return false;
+		goto Error;
 	}
 
 	cudaStatus = cudaMemcpy(points_dev, points, (pointCount+16) * sizeof(GraphicBasicPoint), cudaMemcpyHostToDevice);
 	if (cudaStatus != cudaSuccess) {
+		__debugbreak();
 		fprintf(stderr, "cudaMemcpy failed!");
-		return false;
+		goto Error;
 	}
 
 	cudaStatus = cudaMemcpy(fillColor_dev, fillColor, (graphicCount+16) * sizeof(DWORD), cudaMemcpyHostToDevice);
 	if (cudaStatus != cudaSuccess) {
+		__debugbreak();
 		fprintf(stderr, "cudaMemcpy failed!");
-		return false;
+		goto Error;
 	}
 
 
 	cudaStatus = cudaMemcpy(startPos_dev, startPos, (graphicCount+16) * sizeof(int), cudaMemcpyHostToDevice);
 	if (cudaStatus != cudaSuccess) {
+		__debugbreak();
 		fprintf(stderr, "cudaMemcpy failed!");
-		return false;
+		goto Error;
 	}
 
 	if (graphicCount != 0)
@@ -294,13 +309,15 @@ bool CUDARenderCore::render(DWORD * output,
 		transformKernel <<<pointCount, 1 >>> (setting_dev, points_dev);
 		cudaStatus = cudaGetLastError();
 		if (cudaStatus != cudaSuccess) {
+			__debugbreak();
 			fprintf(stderr, "transform Kernel launch failed: %s\n", cudaGetErrorString(cudaStatus));
 			goto Error;
 		}
 
 		cudaStatus = cudaDeviceSynchronize();
 		if (cudaStatus != cudaSuccess) {
-			fprintf(stderr, "cudaDeviceSynchronize returned error code %d after launching addKernel!\n", cudaStatus);
+			__debugbreak();
+			fprintf(stderr, "cudaDeviceSynchronize returned error code %d after launching transform kernel!\n", cudaStatus);
 			goto Error;
 		}
 	}
@@ -311,6 +328,7 @@ bool CUDARenderCore::render(DWORD * output,
 	// Check for any errors launching the kernel
 	cudaStatus = cudaGetLastError();
 	if (cudaStatus != cudaSuccess) {
+		__debugbreak();
 		fprintf(stderr, "render Kernel launch failed: %s\n", cudaGetErrorString(cudaStatus));
 		goto Error;
 	}
@@ -319,13 +337,15 @@ bool CUDARenderCore::render(DWORD * output,
 	// any errors encountered during the launch.
 	cudaStatus = cudaDeviceSynchronize();
 	if (cudaStatus != cudaSuccess) {
-		fprintf(stderr, "cudaDeviceSynchronize returned error code %d after launching addKernel!\n", cudaStatus);
+		__debugbreak();
+		fprintf(stderr, "cudaDeviceSynchronize returned error code %d after launching render kernel!\n", cudaStatus);
 		goto Error;
 	}
 
 	// Copy output vector from GPU buffer to host memory.
 	cudaStatus = cudaMemcpy(output, res_dev, height * width * sizeof(DWORD), cudaMemcpyDeviceToHost);
 	if (cudaStatus != cudaSuccess) {
+		__debugbreak();
 		fprintf(stderr, "cudaMemcpy failed!");
 		goto Error;
 	}

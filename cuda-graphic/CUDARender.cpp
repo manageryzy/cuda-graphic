@@ -3,6 +3,7 @@
 #include <exception>
 #include "../gui/stdafx.h"
 #include "../gui/guiDoc.h"
+#include "cuda_runtime.h"
 #include "head.cu"
 
 using namespace CUDARenderCore;
@@ -66,7 +67,8 @@ void CUDARender::renderScene(DWORD * output, int height, int width, int frame, f
 
 	
 
-	render(output, height, width, camX, camY, scaleX, scaleY, graphicCount, pointCount, points, fillColor, startPos);
+	auto res = render(output, height, width, camX, camY, scaleX, scaleY, graphicCount, pointCount, points, fillColor, startPos);
+	ASSERT(res == 0);
 
 	delete[] points;
 	delete[] fillColor;
