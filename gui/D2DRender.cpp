@@ -51,25 +51,55 @@ D2DRender::~D2DRender()
 void D2DRender::flush()
 {
 	cached = false;
+	SafeRelease(&pCachedBmp);
 }
 
-bool D2DRender::renderScence()
+HRESULT D2DRender::renderScence()
 {
-
+	HRESULT hr = 0;
 	RECT rc;
+	CString fpsStr;
+
+	std::chrono::steady_clock::time_point now;
+
 	view->GetClientRect(&rc);
+
+	//regular size
+	if (rc.right % 4)
+	{
+		rc.right = (rc.right / 4 + 1) * 4;
+	}
+	if (rc.bottom % 4)
+	{
+		rc.bottom = (rc.bottom / 4 + 1) * 4;
+	}
+
+	if (rc != cachedRC)
+	{
+		cachedRC = rc;
+		cached = false;
+		SafeRelease(&pCachedBmp);
+	}
 
 	CguiDoc* pDoc = view->GetDocument();
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
-		return false;
+		return S_OK;
 
 	if (!pDoc->inited)
-		return false;
+		return S_OK;
 
 
 	ID2D1HwndRenderTarget* pRT = NULL;
-	HRESULT hr = pD2DFactory->CreateHwndRenderTarget(
+	ID2D1BitmapRenderTarget * pCRT = nullptr;
+	ID2D1SolidColorBrush* pGrayBrush = NULL;
+	ID2D1SolidColorBrush* pGreenBrush = NULL;
+	ID2D1SolidColorBrush* pRedBrush = NULL;
+	ID2D1SolidColorBrush* pWhiteBrush = NULL;
+	ID2D1StrokeStyle * style = NULL;
+	ID2D1Bitmap * bmp = NULL;
+
+	hr = pD2DFactory->CreateHwndRenderTarget(
 		D2D1::RenderTargetProperties(),
 		D2D1::HwndRenderTargetProperties(
 			view->GetSafeHwnd(),
@@ -79,16 +109,28 @@ bool D2DRender::renderScence()
 		),
 		&pRT
 	);
+	if (hr)goto error;
+	
+	if (!cached)
+	{
+		if(pCachedBmp)
+			SafeRelease(&pCachedBmp);
 
-	ID2D1SolidColorBrush* pGrayBrush = NULL;
-	pRT->CreateSolidColorBrush(
+		hr = pRT->CreateCompatibleRenderTarget(&pCRT);
+		if (hr)goto error;
+		hr = renderCache(pCRT);
+		if (hr)goto error;
+	}
+
+	
+	hr = pRT->CreateSolidColorBrush(
 		D2D1::ColorF(D2D1::ColorF::Gray),
 		&pGrayBrush
 	);
+	if (hr)goto error;
 
-
-	ID2D1StrokeStyle * style = NULL;
-	pD2DFactory->CreateStrokeStyle(
+	
+	hr = pD2DFactory->CreateStrokeStyle(
 		D2D1::StrokeStyleProperties(
 			D2D1_CAP_STYLE_ROUND,
 			D2D1_CAP_STYLE_ROUND,
@@ -96,29 +138,35 @@ bool D2DRender::renderScence()
 		),
 		0, 0, &style
 	);
+	if (hr)goto error;
 
-
-	ID2D1SolidColorBrush* pRedBrush = NULL;
-	pRT->CreateSolidColorBrush(
+	
+	hr = pRT->CreateSolidColorBrush(
 		D2D1::ColorF(D2D1::ColorF::Red),
 		&pRedBrush
 	);
+	if (hr)goto error;
 
-
-	ID2D1SolidColorBrush* pWhiteBrush = NULL;
-	pRT->CreateSolidColorBrush(
+	
+	hr = pRT->CreateSolidColorBrush(
 		D2D1::ColorF(D2D1::ColorF::White),
 		&pWhiteBrush
 	);
+	if (hr)goto error;
 
-
-
-	ID2D1SolidColorBrush* pGreenBrush = NULL;
-	pRT->CreateSolidColorBrush(
+	
+	hr = pRT->CreateSolidColorBrush(
 		D2D1::ColorF(D2D1::ColorF::Green),
 		&pGreenBrush
 	);
+	if (hr)goto error;
 
+	hr = pRT->CreateSharedBitmap(
+		__uuidof(ID2D1Bitmap),
+		(void *)pCachedBmp,
+		&D2D1::BitmapProperties(D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED)),
+		&bmp
+	);
 
 	ASSERT(pDoc != nullptr);
 	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
@@ -126,6 +174,7 @@ bool D2DRender::renderScence()
 
 	pRT->BeginDraw();
 	pRT->Clear();
+	pRT->DrawBitmap(bmp);
 	// begin draw
 
 	if (view->selectMode == GUI_SELECT_MODE_OBJECT)
@@ -153,13 +202,15 @@ bool D2DRender::renderScence()
 
 
 	// end draw
-	std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
+	now = std::chrono::steady_clock::now();
 	int fps = (int)(1000000.0 / (std::chrono::duration_cast<std::chrono::microseconds>(now - lastFrame).count()));
 	lastFrame = now;
-	CString fpsStr;
 	fpsStr.Format(L"FPS:%d ", fps);
 	pRT->DrawTextW(fpsStr, fpsStr.GetLength(), pTextFormat, D2D1::RectF(0, 0, 1000, 30), pGreenBrush);
 	hr = pRT->EndDraw();
+	if (hr) goto error;
+
+error:
 
 	SafeRelease(&pRT);
 	SafeRelease(&pGrayBrush);
@@ -167,12 +218,13 @@ bool D2DRender::renderScence()
 	SafeRelease(&pRedBrush);
 	SafeRelease(&pWhiteBrush);
 	SafeRelease(&style);
+	SafeRelease(&pCRT);
+	SafeRelease(&bmp);
 
-
-	return true;
+	return hr;
 }
 
-inline void D2DRender::renderGraphicFast(Graphic* g, GraphicCamera * camera, ID2D1HwndRenderTarget* pRT, ID2D1SolidColorBrush * brush, ID2D1StrokeStyle * style)
+inline void D2DRender::renderGraphicFast(Graphic* g, GraphicCamera * camera, ID2D1RenderTarget* pRT, ID2D1SolidColorBrush * brush, ID2D1StrokeStyle * style)
 {
 	switch (g->type)
 	{
@@ -189,6 +241,7 @@ inline void D2DRender::renderGraphicFast(Graphic* g, GraphicCamera * camera, ID2
 		{
 			auto pt1 = camera->toCameraView(lastPoint->x, lastPoint->y);
 			auto pt2 = camera->toCameraView(i->x, i->y);
+			brush->SetColor(D2D1::ColorF(lastPoint->color));
 
 			pRT->DrawLine(pt1, pt2, brush, (i->width + lastPoint->width) / 2, style);
 
@@ -207,6 +260,7 @@ inline void D2DRender::renderGraphicFast(Graphic* g, GraphicCamera * camera, ID2
 		eclipse.point = pt;
 		eclipse.radiusX = r;
 		eclipse.radiusY = r;
+		brush->SetColor(D2D1::ColorF(circle->color.atFrame(view->frame)));
 		pRT->DrawEllipse(eclipse, brush, circle->width.atFrame(view->frame), style);
 	}
 	break;
@@ -221,7 +275,7 @@ inline void D2DRender::renderGraphicFast(Graphic* g, GraphicCamera * camera, ID2
 		{
 			auto pt1 = camera->toCameraView(lastPoint->x, lastPoint->y);
 			auto pt2 = camera->toCameraView(i->x, i->y);
-
+			brush->SetColor(D2D1::ColorF(lastPoint->color));
 			pRT->DrawLine(pt1, pt2, brush, (i->width + lastPoint->width) / 2, style);
 
 			lastPoint = i;
@@ -233,4 +287,65 @@ inline void D2DRender::renderGraphicFast(Graphic* g, GraphicCamera * camera, ID2
 	default:
 		throw "unkown type";
 	}
+}
+
+HRESULT D2DRender::renderCache(ID2D1BitmapRenderTarget * pCRT)
+{
+	HRESULT hr;
+
+	ID2D1StrokeStyle * style = NULL;
+	ID2D1SolidColorBrush * brush = NULL;
+
+	CguiDoc* pDoc = view->GetDocument();
+	ASSERT_VALID(pDoc);
+	if (!pDoc)
+		return S_OK;
+
+	if (!pDoc->inited)
+		return S_OK;
+
+	ASSERT(pDoc != nullptr);
+	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
+	GraphicCamera * camera = pDoc->cameras[pDoc->currentCamera].get();
+
+	hr = pCRT->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Red), &brush);
+	if (hr)goto error;
+
+	hr = pD2DFactory->CreateStrokeStyle(
+		D2D1::StrokeStyleProperties(
+			D2D1_CAP_STYLE_ROUND,
+			D2D1_CAP_STYLE_ROUND,
+			D2D1_CAP_STYLE_ROUND
+		),
+		0, 0, &style
+	);
+	if (hr)goto error;
+
+	pCRT->BeginDraw();
+	pCRT->Clear();
+
+	for (auto & guid : pDoc->layer)
+	{
+		if (view->selectedGraphic.find(guid) != view->selectedGraphic.end())
+			continue;
+
+		Graphic * g = pDoc->graphics[guid].get();
+		renderGraphicFast(g, camera, pCRT, brush, style);
+	}
+	
+
+	hr = pCRT->EndDraw();
+	if (hr)goto error;
+
+	
+	hr = pCRT->GetBitmap(&pCachedBmp);
+	if (hr) return hr; 
+
+	cached = true;
+
+error:
+	SafeRelease(&style);
+	SafeRelease(&brush);
+
+	return hr;
 }

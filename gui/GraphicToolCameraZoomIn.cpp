@@ -28,6 +28,7 @@ void GraphicToolCameraZoomIn::zoomIn()
 {
 	GRA_INIT_DOC;
 	camera->scale *= 2;
+	view->d2dRender->flush();
 }
 
 GRA_TOOL_MSG_MAP_START(GraphicToolCameraZoomIn)

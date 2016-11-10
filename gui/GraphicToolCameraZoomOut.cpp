@@ -29,6 +29,7 @@ void GraphicToolCameraZoomOut::zoomOut()
 {
 	GRA_INIT_DOC;
 	camera->scale /= 2;
+	view->d2dRender->flush();
 }
 
 GRA_TOOL_MSG_MAP_START(GraphicToolCameraZoomOut)

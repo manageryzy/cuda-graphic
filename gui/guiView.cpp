@@ -178,6 +178,7 @@ void CguiView::beginCreating()
 {
 	selectedGraphic.clear();
 	cudaRender->getCache()->change(frame);
+	d2dRender->flush();
 }
 
 void CguiView::endCreating(bool end)
@@ -195,6 +196,7 @@ void CguiView::endCreating(bool end)
 		editTool = nullptr;
 
 	cudaRender->getCache()->change(frame);
+	d2dRender->flush();
 
 	CMainFrame * frame = (CMainFrame *)AfxGetMainWnd();
 	frame->m_wndSceneView.FillClassView(pDoc);
@@ -442,6 +444,7 @@ void CguiView::OnFrameNext()
 	CString out;
 	out.Format(L"%s - frame: %d", title, frame);
 	f->SetWindowTextW(out);
+	d2dRender->flush();
 }
 
 
@@ -465,6 +468,7 @@ void CguiView::OnFramePrev()
 	CString out;
 	out.Format(L"%s - frame: %d", title, frame);
 	f->SetWindowTextW(out);
+	d2dRender->flush();
 }
 
 
@@ -913,6 +917,7 @@ void CguiView::OnSelectAll()
 			selectedGraphic.insert(guid);
 		}
 		cudaRender->getCache()->change(frame);
+		d2dRender->flush();
 	}
 }
 

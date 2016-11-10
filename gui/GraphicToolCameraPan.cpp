@@ -40,6 +40,8 @@ bool GraphicToolCameraPan::onMouseMove(void * point)
 		camera->y = startCamera->y - deltaY;
 	}
 
+	view->d2dRender->flush();
+
 	return true;
 }
 
