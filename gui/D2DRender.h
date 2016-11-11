@@ -21,12 +21,14 @@ class D2DRender
 	IDWriteTextFormat * pTextFormat = NULL;
 	IDWriteFactory * pDWriteFactory = NULL;
 	IWICBitmap * pCachedBmp = NULL;
+	IWICBitmap * pCachedBmpBack = NULL;
 	IWICImagingFactory * m_pIWICFactory;
 
 	std::chrono::steady_clock::time_point lastFrame;
 
 	inline void D2DRender::renderGraphicFast(Graphic* g, GraphicCamera * camera, ID2D1RenderTarget* pRT, ID2D1SolidColorBrush * brush, ID2D1StrokeStyle * style);
 	void renderCache(CguiDoc* pDoc);
+	void release();
 public:
 	D2DRender(CguiView * view);
 	~D2DRender();

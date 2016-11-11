@@ -60,7 +60,7 @@ void D2DRender::flush()
 {
 	mu.lock();
 	cached = false;
-	SafeRelease(&pCachedBmp);
+	release();
 	mu.unlock();
 }
 
@@ -104,7 +104,7 @@ HRESULT D2DRender::renderScence()
 		mu.lock();
 		cachedRC = rc;
 		cached = false;
-		SafeRelease(&pCachedBmp);
+		release();
 		mu.unlock();
 	}
 
@@ -130,8 +130,7 @@ HRESULT D2DRender::renderScence()
 	
 	if (!cached)
 	{
-		if(pCachedBmp)
-			SafeRelease(&pCachedBmp);
+		release();
 
 		int height = rc.right - rc.left;
 		int width = rc.bottom - rc.top;
@@ -197,6 +196,15 @@ HRESULT D2DRender::renderScence()
 		);
 		if (hr)goto error;
 	}
+	else if (pCachedBmpBack != nullptr)
+	{
+		hr = pRT->CreateBitmapFromWicBitmap(
+			pCachedBmpBack,
+			nullptr,
+			&bmp
+		);
+		if (hr)goto error;
+	}
 	
 
 	ASSERT(pDoc != nullptr);
@@ -205,11 +213,9 @@ HRESULT D2DRender::renderScence()
 
 	pRT->BeginDraw();
 	pRT->Clear();
-	if (cached && !busy && bmp!=nullptr)
+	if (bmp!=nullptr)
 	{
-		mu.lock();
 		pRT->DrawBitmap(bmp);
-		mu.unlock();
 	}
 		
 	// begin draw
@@ -399,4 +405,19 @@ error:
 	busy = false;
 	mu2.unlock();
 	mu.unlock();
+}
+
+void D2DRender::release()
+{
+	if (pCachedBmp)
+	{
+		SafeRelease(&pCachedBmpBack);
+		pCachedBmpBack = pCachedBmp;
+		pCachedBmp = nullptr;
+	}
+	else if(!pCachedBmpBack)
+	{
+		pCachedBmpBack = pCachedBmp;
+		pCachedBmp = nullptr;
+	}
 }
