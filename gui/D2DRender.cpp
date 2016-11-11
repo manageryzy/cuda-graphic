@@ -38,6 +38,14 @@ D2DRender::D2DRender(CguiView * view)
 	);
 	if (hr != S_OK)throw hr;
 
+	hr = CoCreateInstance(
+		CLSID_WICImagingFactory,
+		NULL,
+		CLSCTX_INPROC_SERVER,
+		IID_PPV_ARGS(&m_pIWICFactory)
+	);
+	if (hr != S_OK)throw hr;
+
 	lastFrame = std::chrono::steady_clock::now();
 }
 
@@ -50,8 +58,15 @@ D2DRender::~D2DRender()
 
 void D2DRender::flush()
 {
+	mu.lock();
 	cached = false;
 	SafeRelease(&pCachedBmp);
+	mu.unlock();
+}
+
+bool D2DRender::isBusy()
+{
+	return busy;
 }
 
 HRESULT D2DRender::renderScence()
@@ -59,6 +74,14 @@ HRESULT D2DRender::renderScence()
 	HRESULT hr = 0;
 	RECT rc;
 	CString fpsStr;
+
+	ID2D1HwndRenderTarget* pRT = NULL;
+	ID2D1SolidColorBrush* pGrayBrush = NULL;
+	ID2D1SolidColorBrush* pGreenBrush = NULL;
+	ID2D1SolidColorBrush* pRedBrush = NULL;
+	ID2D1SolidColorBrush* pWhiteBrush = NULL;
+	ID2D1StrokeStyle * style = NULL;
+	ID2D1Bitmap * bmp = NULL;
 
 	std::chrono::steady_clock::time_point now;
 
@@ -74,30 +97,24 @@ HRESULT D2DRender::renderScence()
 		rc.bottom = (rc.bottom / 4 + 1) * 4;
 	}
 
+	mu2.lock();
+
 	if (rc != cachedRC)
 	{
+		mu.lock();
 		cachedRC = rc;
 		cached = false;
 		SafeRelease(&pCachedBmp);
+		mu.unlock();
 	}
 
 	CguiDoc* pDoc = view->GetDocument();
 	ASSERT_VALID(pDoc);
 	if (!pDoc)
-		return S_OK;
+		goto error;
 
 	if (!pDoc->inited)
-		return S_OK;
-
-
-	ID2D1HwndRenderTarget* pRT = NULL;
-	ID2D1BitmapRenderTarget * pCRT = nullptr;
-	ID2D1SolidColorBrush* pGrayBrush = NULL;
-	ID2D1SolidColorBrush* pGreenBrush = NULL;
-	ID2D1SolidColorBrush* pRedBrush = NULL;
-	ID2D1SolidColorBrush* pWhiteBrush = NULL;
-	ID2D1StrokeStyle * style = NULL;
-	ID2D1Bitmap * bmp = NULL;
+		goto error;
 
 	hr = pD2DFactory->CreateHwndRenderTarget(
 		D2D1::RenderTargetProperties(),
@@ -116,10 +133,20 @@ HRESULT D2DRender::renderScence()
 		if(pCachedBmp)
 			SafeRelease(&pCachedBmp);
 
-		hr = pRT->CreateCompatibleRenderTarget(&pCRT);
+		int height = rc.right - rc.left;
+		int width = rc.bottom - rc.top;
+
+		hr = m_pIWICFactory->CreateBitmap(
+			height,
+			width,
+			GUID_WICPixelFormat32bppBGR,
+			WICBitmapCacheOnDemand,
+			&pCachedBmp
+		);
 		if (hr)goto error;
-		hr = renderCache(pCRT);
-		if (hr)goto error;
+
+		std::thread t(std::bind(&D2DRender::renderCache,this,pDoc));
+		t.detach();
 	}
 
 	
@@ -161,12 +188,16 @@ HRESULT D2DRender::renderScence()
 	);
 	if (hr)goto error;
 
-	hr = pRT->CreateSharedBitmap(
-		__uuidof(ID2D1Bitmap),
-		(void *)pCachedBmp,
-		&D2D1::BitmapProperties(D2D1::PixelFormat(DXGI_FORMAT_UNKNOWN, D2D1_ALPHA_MODE_PREMULTIPLIED)),
-		&bmp
-	);
+	if (cached && !busy)
+	{
+		hr = pRT->CreateBitmapFromWicBitmap(
+			pCachedBmp,
+			nullptr,
+			&bmp
+		);
+		if (hr)goto error;
+	}
+	
 
 	ASSERT(pDoc != nullptr);
 	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
@@ -174,7 +205,13 @@ HRESULT D2DRender::renderScence()
 
 	pRT->BeginDraw();
 	pRT->Clear();
-	pRT->DrawBitmap(bmp);
+	if (cached && !busy && bmp!=nullptr)
+	{
+		mu.lock();
+		pRT->DrawBitmap(bmp);
+		mu.unlock();
+	}
+		
 	// begin draw
 
 	if (view->selectMode == GUI_SELECT_MODE_OBJECT)
@@ -211,14 +248,13 @@ HRESULT D2DRender::renderScence()
 	if (hr) goto error;
 
 error:
-
+	mu2.unlock();
 	SafeRelease(&pRT);
 	SafeRelease(&pGrayBrush);
 	SafeRelease(&pGreenBrush);
 	SafeRelease(&pRedBrush);
 	SafeRelease(&pWhiteBrush);
 	SafeRelease(&style);
-	SafeRelease(&pCRT);
 	SafeRelease(&bmp);
 
 	return hr;
@@ -289,24 +325,38 @@ inline void D2DRender::renderGraphicFast(Graphic* g, GraphicCamera * camera, ID2
 	}
 }
 
-HRESULT D2DRender::renderCache(ID2D1BitmapRenderTarget * pCRT)
+void D2DRender::renderCache(CguiDoc* pDoc)
 {
+	mu.lock();
+	mu2.lock();
+	busy = true;
+	mu2.unlock();
 	HRESULT hr;
 
+	ID2D1RenderTarget * pCRT = nullptr;
 	ID2D1StrokeStyle * style = NULL;
 	ID2D1SolidColorBrush * brush = NULL;
-
-	CguiDoc* pDoc = view->GetDocument();
-	ASSERT_VALID(pDoc);
-	if (!pDoc)
-		return S_OK;
-
-	if (!pDoc->inited)
-		return S_OK;
 
 	ASSERT(pDoc != nullptr);
 	ASSERT(pDoc->cameras.find(pDoc->currentCamera) != pDoc->cameras.end());
 	GraphicCamera * camera = pDoc->cameras[pDoc->currentCamera].get();
+
+	hr = pD2DFactory->CreateWicBitmapRenderTarget(
+		pCachedBmp,
+		D2D1::RenderTargetProperties(
+			D2D1_RENDER_TARGET_TYPE_DEFAULT,
+			D2D1::PixelFormat(
+				DXGI_FORMAT_B8G8R8A8_UNORM,
+				D2D1_ALPHA_MODE_IGNORE
+			),
+			0,
+			0,
+			D2D1_RENDER_TARGET_USAGE_NONE,
+			D2D1_FEATURE_LEVEL_DEFAULT
+		),
+		&pCRT
+	);
+	if (hr)goto error;
 
 	hr = pCRT->CreateSolidColorBrush(D2D1::ColorF(D2D1::ColorF::Red), &brush);
 	if (hr)goto error;
@@ -337,15 +387,16 @@ HRESULT D2DRender::renderCache(ID2D1BitmapRenderTarget * pCRT)
 	hr = pCRT->EndDraw();
 	if (hr)goto error;
 
-	
-	hr = pCRT->GetBitmap(&pCachedBmp);
-	if (hr) return hr; 
-
 	cached = true;
 
 error:
+	ASSERT(hr == S_OK);
 	SafeRelease(&style);
 	SafeRelease(&brush);
+	SafeRelease(&pCRT);
 
-	return hr;
+	mu2.lock();
+	busy = false;
+	mu2.unlock();
+	mu.unlock();
 }
