@@ -149,6 +149,13 @@ void CguiDoc::Serialize(CArchive& ar)
 		}
 
 		currentCamera.Serialize(ar);
+
+		POSITION pos = GetFirstViewPosition();
+		auto view = GetNextView(pos);
+		if (view != nullptr)
+		{
+			view->PostMessageW(WM_VIEW_RESET);
+		}
 	}
 }
 

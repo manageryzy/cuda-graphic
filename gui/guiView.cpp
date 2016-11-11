@@ -283,6 +283,7 @@ void CguiView::OnBtnAddLine()
 		creating = nullptr;
 		editTool = nullptr;
 		toolAddLine->reset();
+		d2dRender->flush();
 	}
 }
 
@@ -734,6 +735,8 @@ afx_msg LRESULT CguiView::OnViewReset(WPARAM wParam, LPARAM lParam)
 	CString out;
 	out.Format(L"%s - frame: %ld", title, frame);
 	f->SetWindowTextW(out);
+
+	d2dRender->flush();
 
 	return 0;
 }
