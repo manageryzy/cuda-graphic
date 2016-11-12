@@ -146,6 +146,9 @@ HRESULT D2DRender::renderScence()
 
 		std::thread t(std::bind(&D2DRender::renderCache,this,pDoc));
 		t.detach();
+		mu2.unlock();
+		std::this_thread::sleep_for(std::chrono::milliseconds(30));
+		mu2.lock();
 	}
 
 	
