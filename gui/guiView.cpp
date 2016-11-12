@@ -201,7 +201,7 @@ void CguiView::flush()
 {
 	auto pDoc = GetDocument();
 	CMainFrame * f = (CMainFrame *)AfxGetMainWnd();
-	f->m_wndSceneView.FillClassView(pDoc);
+	f->m_wndSceneView.FillClassView(pDoc,this);
 
 
 	title = f->GetTitle();
@@ -758,8 +758,7 @@ void CguiView::OnInitialUpdate()
 	SetTimer(TIMERID_REFRESH, 20, 0);
 
 	auto pDoc = GetDocument();
-	CMainFrame * frame = (CMainFrame *)AfxGetMainWnd();
-	frame->m_wndSceneView.FillClassView(pDoc);
+	flush();
 }
 
 

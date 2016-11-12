@@ -26,7 +26,7 @@ class D2DRender
 
 	std::chrono::steady_clock::time_point lastFrame;
 
-	inline void D2DRender::renderGraphicFast(Graphic* g, GraphicCamera * camera, ID2D1RenderTarget* pRT, ID2D1SolidColorBrush * brush, ID2D1StrokeStyle * style);
+	inline void D2DRender::renderGraphicFast(Graphic* g, GraphicCamera * camera, ID2D1RenderTarget* pRT, ID2D1SolidColorBrush * brush, ID2D1SolidColorBrush * border, ID2D1StrokeStyle * style);
 	void renderCache(CguiDoc* pDoc);
 	void release();
 public:

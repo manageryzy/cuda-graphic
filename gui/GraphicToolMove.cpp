@@ -36,6 +36,7 @@ bool GraphicToolMove::onLButtonUp(void * point)
 	{
 		doMove(point);
 		state = 0;
+		view->endCreating();
 	}
 
 	return true;

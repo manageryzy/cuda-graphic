@@ -12,6 +12,7 @@
 #pragma once
 
 #include "ViewTree.h"
+#include <map>
 
 class CClassToolBar : public CMFCToolBar
 {
@@ -23,6 +24,8 @@ class CClassToolBar : public CMFCToolBar
 	virtual BOOL AllowShowOnList() const { return FALSE; }
 };
 class CguiDoc;
+class CguiView;
+class GUID_;
 class CSceneView : public CDockablePane
 {
 public:
@@ -32,7 +35,7 @@ public:
 	void AdjustLayout();
 	void OnChangeVisualStyle();
 
-	void FillClassView(CguiDoc * doc = nullptr);
+	void FillClassView(CguiDoc * doc = nullptr,CguiView * view = nullptr);
 
 protected:
 	//CClassToolBar m_wndToolBar;
@@ -40,7 +43,7 @@ protected:
 	CImageList m_ClassViewImages;
 	UINT m_nCurrSort;
 
-	
+	std::map<HTREEITEM, GUID_> * treeItem;
 
 // Overrides
 public:

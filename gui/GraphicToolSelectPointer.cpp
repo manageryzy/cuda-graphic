@@ -102,11 +102,11 @@ bool GraphicToolSelectPointer::onLButtonDown(void * point)
 			}
 		}
 
-		if(view->selectedGraphic.size()>0)
+		/*if(view->selectedGraphic.size()>0)
 		{
 			if (view->editTool == nullptr)
 				view->editTool = (GraphicTool *)view->toolMove;
-		}
+		}*/
 	}
 	else if (view->selectMode == GUI_SELECT_MODE_VERTEX)
 	{

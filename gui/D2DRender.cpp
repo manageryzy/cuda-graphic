@@ -231,7 +231,7 @@ HRESULT D2DRender::renderScence()
 			ASSERT(pDoc->graphics[guid].get() != nullptr);
 
 			Graphic * g = pDoc->graphics[guid].get();
-			renderGraphicFast(g, camera, pRT, pWhiteBrush, style);
+			renderGraphicFast(g, camera, pRT, pWhiteBrush,pGreenBrush, style);
 		}
 
 	}
@@ -244,7 +244,7 @@ HRESULT D2DRender::renderScence()
 	}
 
 	if (view->creating)
-		renderGraphicFast(view->creating, camera, pRT, pWhiteBrush, style);
+		renderGraphicFast(view->creating, camera, pRT, pWhiteBrush,pGreenBrush, style);
 
 
 	// end draw
@@ -269,7 +269,7 @@ error:
 	return hr;
 }
 
-inline void D2DRender::renderGraphicFast(Graphic* g, GraphicCamera * camera, ID2D1RenderTarget* pRT, ID2D1SolidColorBrush * brush, ID2D1StrokeStyle * style)
+inline void D2DRender::renderGraphicFast(Graphic* g, GraphicCamera * camera, ID2D1RenderTarget* pRT, ID2D1SolidColorBrush * brush, ID2D1SolidColorBrush * border, ID2D1StrokeStyle * style)
 {
 	switch (g->type)
 	{
@@ -282,15 +282,31 @@ inline void D2DRender::renderGraphicFast(Graphic* g, GraphicCamera * camera, ID2
 		if (ptList.size() < 2)
 			return;
 		auto lastPoint = ptList.begin();
+		auto pt1 = camera->toCameraView(lastPoint->x, lastPoint->y);
+		auto minx = pt1.x;
+		auto miny = pt1.y;
+		auto maxx = pt1.x;
+		auto maxy = pt1.y;
 		for (auto i = ptList.begin() + 1; i < ptList.end(); ++i)
 		{
 			auto pt1 = camera->toCameraView(lastPoint->x, lastPoint->y);
 			auto pt2 = camera->toCameraView(i->x, i->y);
+
+			minx = min(pt1.x, minx);
+			miny = min(pt1.y, miny);
+			maxx = max(pt2.x, maxx);
+			maxy = max(pt2.y, maxy);
+
 			brush->SetColor(D2D1::ColorF(lastPoint->color));
 
 			pRT->DrawLine(pt1, pt2, brush, (i->width + lastPoint->width) / 2, style);
 
 			lastPoint = i;
+		}
+
+		if (border)
+		{
+			pRT->DrawRectangle(D2D1::RectF(minx,miny,maxx,maxy), border, 1 , style);
 		}
 	}
 	break;
@@ -307,6 +323,11 @@ inline void D2DRender::renderGraphicFast(Graphic* g, GraphicCamera * camera, ID2
 		eclipse.radiusY = r;
 		brush->SetColor(D2D1::ColorF(circle->color.atFrame(view->frame)));
 		pRT->DrawEllipse(eclipse, brush, circle->width.atFrame(view->frame), style);
+
+		if (border)
+		{
+			pRT->DrawRectangle(D2D1::RectF(pt.x - r, pt.y - r, pt.x + r, pt.y + r), border, 1, style);
+		}
 	}
 	break;
 	case GRA_BEZIER:
@@ -324,6 +345,22 @@ inline void D2DRender::renderGraphicFast(Graphic* g, GraphicCamera * camera, ID2
 			pRT->DrawLine(pt1, pt2, brush, (i->width + lastPoint->width) / 2, style);
 
 			lastPoint = i;
+		}
+
+		if (border)
+		{
+			for (auto & c : g->graphicBezier->curves)
+			{
+				auto pt1 = camera->toCameraView(c.pt1.x.atFrame(view->frame), c.pt1.y.atFrame(view->frame));
+				auto pt2 = camera->toCameraView(c.ct1x.atFrame(view->frame), c.ct1y.atFrame(view->frame));
+
+				pRT->DrawLine(pt1, pt2, border, 1, style);
+
+				pt1 = camera->toCameraView(c.pt2.x.atFrame(view->frame), c.pt2.y.atFrame(view->frame));
+				pt2 = camera->toCameraView(c.ct2x.atFrame(view->frame), c.ct2y.atFrame(view->frame));
+
+				pRT->DrawLine(pt1, pt2, border, 1, style);
+			}
 		}
 	}
 	break;
@@ -389,7 +426,7 @@ void D2DRender::renderCache(CguiDoc* pDoc)
 			continue;
 
 		Graphic * g = pDoc->graphics[guid].get();
-		renderGraphicFast(g, camera, pCRT, brush, style);
+		renderGraphicFast(g, camera, pCRT, brush,nullptr, style);
 	}
 	
 

@@ -11,10 +11,12 @@
 
 #include "stdafx.h"
 #include "MainFrm.h"
-#include "SceneView.h"
+
 #include "Resource.h"
 #include "gui.h"
 #include "guiDoc.h"
+#include "guiView.h"
+#include "SceneView.h"
 
 class CClassViewMenuButton : public CMFCToolBarMenuButton
 {
@@ -50,6 +52,7 @@ IMPLEMENT_SERIAL(CClassViewMenuButton, CMFCToolBarMenuButton, 1)
 CSceneView::CSceneView()
 {
 	m_nCurrSort = ID_SORTING_GROUPBYTYPE;
+	treeItem = new std::map<HTREEITEM, GUID_>();
 }
 
 CSceneView::~CSceneView()
@@ -127,9 +130,10 @@ void CSceneView::OnSize(UINT nType, int cx, int cy)
 	AdjustLayout();
 }
 
-void CSceneView::FillClassView(CguiDoc * doc)
+void CSceneView::FillClassView(CguiDoc * doc, CguiView * view)
 {
 	m_wndClassView.DeleteAllItems();
+	treeItem->clear();
 
 	HTREEITEM hRoot = m_wndClassView.InsertItem(_T("Scene"), 0, 0);
 	m_wndClassView.SetItemState(hRoot, TVIS_BOLD, TVIS_BOLD);
@@ -145,23 +149,28 @@ void CSceneView::FillClassView(CguiDoc * doc)
 	hClass = m_wndClassView.InsertItem(_T("Graphics"), 2, 2, hRoot);
 	if (doc)for (int i = doc->layer.size()-1;i>=0;i--)
 	{
-		auto g = doc->graphics[doc->layer.at(i)].get();
+		auto & guid = doc->layer.at(i);
+		auto g = doc->graphics[guid].get();
+		HTREEITEM item = 0;
 		
 		switch (g->type)
 		{
 		case GRA_POLYGON:
-			m_wndClassView.InsertItem(g->label, 1, 1, hClass);
+			item = m_wndClassView.InsertItem(g->label, 1, 1, hClass);
 			break;
 		case GRA_CIRCLE:
-			m_wndClassView.InsertItem(g->label, 3, 3, hClass);
+			item = m_wndClassView.InsertItem(g->label, 3, 3, hClass);
 			break;
 		case GRA_BEZIER:
-			m_wndClassView.InsertItem(g->label, 4, 4, hClass);
+			item = m_wndClassView.InsertItem(g->label, 4, 4, hClass);
 			break;
 		default:
 			break;
 		}
-		
+
+		(*treeItem)[item] = guid;
+		if (view->selectedGraphic.find(guid) != view->selectedGraphic.end())
+			m_wndClassView.SelectItem(item);
 	}
 	m_wndClassView.Expand(hClass, TVE_EXPAND);
 	m_wndClassView.Expand(hRoot, TVE_EXPAND);
