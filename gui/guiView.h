@@ -100,6 +100,8 @@ public:
 
 	void beginCreating();
 	void endCreating(bool end = true);
+
+	void inline flush();
 private:
 	//wacom
 	LOGCONTEXTA lc;

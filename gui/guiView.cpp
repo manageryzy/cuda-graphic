@@ -177,8 +177,7 @@ BOOL CguiView::PreCreateWindow(CREATESTRUCT& cs)
 void CguiView::beginCreating()
 {
 	selectedGraphic.clear();
-	cudaRender->getCache()->change(frame);
-	d2dRender->flush();
+	flush();
 }
 
 void CguiView::endCreating(bool end)
@@ -195,11 +194,23 @@ void CguiView::endCreating(bool end)
 	if(end)
 		editTool = nullptr;
 
-	cudaRender->getCache()->change(frame);
-	d2dRender->flush();
+	flush();
+}
 
-	CMainFrame * frame = (CMainFrame *)AfxGetMainWnd();
-	frame->m_wndSceneView.FillClassView(pDoc);
+void CguiView::flush()
+{
+	auto pDoc = GetDocument();
+	CMainFrame * f = (CMainFrame *)AfxGetMainWnd();
+	f->m_wndSceneView.FillClassView(pDoc);
+
+
+	title = f->GetTitle();
+	CString out;
+	out.Format(L"%s - frame: %ld", title, frame);
+	f->SetWindowTextW(out);
+
+	d2dRender->flush();
+	cudaRender->getCache()->change(frame);
 }
 
 
@@ -283,7 +294,7 @@ void CguiView::OnBtnAddLine()
 		creating = nullptr;
 		editTool = nullptr;
 		toolAddLine->reset();
-		d2dRender->flush();
+		flush();
 	}
 }
 
@@ -298,6 +309,7 @@ void CguiView::OnBtnAddBreakLine()
 		creating = nullptr;
 		editTool = nullptr;
 		toolAddBreakline->reset();
+		flush();
 	}
 }
 
@@ -441,11 +453,8 @@ void CguiView::OnFrameNext()
 	}
 
 	frame += 1;
-	auto f = (CMainFrame *)GetTopLevelFrame();
-	CString out;
-	out.Format(L"%s - frame: %d", title, frame);
-	f->SetWindowTextW(out);
-	d2dRender->flush();
+
+	flush();
 }
 
 
@@ -465,11 +474,8 @@ void CguiView::OnFramePrev()
 
 	if (frame > 0)
 		frame -= 1;
-	auto f = (CMainFrame *)GetTopLevelFrame();
-	CString out;
-	out.Format(L"%s - frame: %d", title, frame);
-	f->SetWindowTextW(out);
-	d2dRender->flush();
+
+	flush();
 }
 
 
@@ -726,17 +732,7 @@ afx_msg LRESULT CguiView::OnViewReset(WPARAM wParam, LPARAM lParam)
 		delete creating;
 	creating = nullptr;
 
-	auto pDoc = GetDocument();
-	CMainFrame * f = (CMainFrame *)AfxGetMainWnd();
-	f->m_wndSceneView.FillClassView(pDoc);
-
-	
-	title = f->GetTitle();
-	CString out;
-	out.Format(L"%s - frame: %ld", title, frame);
-	f->SetWindowTextW(out);
-
-	d2dRender->flush();
+	flush();
 
 	return 0;
 }
@@ -919,8 +915,8 @@ void CguiView::OnSelectAll()
 		{
 			selectedGraphic.insert(guid);
 		}
-		cudaRender->getCache()->change(frame);
-		d2dRender->flush();
+		
+		flush();
 	}
 }
 
